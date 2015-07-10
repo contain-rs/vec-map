@@ -11,16 +11,17 @@
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
 
-#![feature(drain, iter_order, box_syntax)]
-#![cfg_attr(test, feature(hash_default))]
+#![cfg_attr(feature = "nightly", feature(drain, iter_order))]
+#![cfg_attr(all(feature = "nightly", test), feature(hash_default))]
 
 use self::Entry::*;
 
-use std::cmp::{max, Ordering};
+use std::cmp::max;
+#[cfg(feature = "nightly")] use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::iter::{Enumerate, FilterMap, Map, FromIterator};
-use std::iter;
+#[cfg(feature = "nightly")] use std::iter;
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 use std::slice;
@@ -31,8 +32,7 @@ use std::vec;
 /// # Examples
 ///
 /// ```
-/// # #![feature(vecmap)]
-/// use std::collections::VecMap;
+/// use vec_map::VecMap;
 ///
 /// let mut months = VecMap::new();
 /// months.insert(1, "Jan");
@@ -122,8 +122,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// ```
     pub fn new() -> VecMap<V> { VecMap { v: vec![] } }
@@ -134,8 +133,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
     /// ```
     pub fn with_capacity(capacity: usize) -> VecMap<V> {
@@ -148,8 +146,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     /// let map: VecMap<String> = VecMap::with_capacity(10);
     /// assert!(map.capacity() >= 10);
     /// ```
@@ -167,8 +164,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// map.reserve_len(10);
     /// assert!(map.capacity() >= 10);
@@ -191,8 +187,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// map.reserve_len_exact(10);
     /// assert!(map.capacity() >= 10);
@@ -228,8 +223,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -256,8 +250,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -285,8 +278,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap, append)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut a = VecMap::new();
     /// a.insert(1, "a");
@@ -305,6 +297,7 @@ impl<V> VecMap<V> {
     /// assert_eq!(a[3], "c");
     /// assert_eq!(a[4], "d");
     /// ```
+    #[cfg(feature = "nightly")]
     pub fn append(&mut self, other: &mut Self) {
         self.extend(other.drain());
     }
@@ -319,8 +312,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap, split_off)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut a = VecMap::new();
     /// a.insert(1, "a");
@@ -374,8 +366,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap, drain)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -386,6 +377,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
+    #[cfg(feature = "nightly")]
     pub fn drain<'a>(&'a mut self) -> Drain<'a, V> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
@@ -400,8 +392,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut a = VecMap::new();
     /// assert_eq!(a.len(), 0);
@@ -417,8 +408,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut a = VecMap::new();
     /// assert!(a.is_empty());
@@ -434,8 +424,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut a = VecMap::new();
     /// a.insert(1, "a");
@@ -449,8 +438,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -473,8 +461,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -491,8 +478,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -518,8 +504,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// assert_eq!(map.insert(37, "a"), None);
@@ -543,8 +528,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -564,8 +548,7 @@ impl<V> VecMap<V> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap, entry)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut count: VecMap<u32> = VecMap::new();
     ///
@@ -660,14 +643,17 @@ impl<'a, V> OccupiedEntry<'a, V> {
     }
 }
 
+#[cfg(feature = "nightly")]
 impl<V: PartialEq> PartialEq for VecMap<V> {
     fn eq(&self, other: &VecMap<V>) -> bool {
         iter::order::eq(self.iter(), other.iter())
     }
 }
 
+#[cfg(feature = "nightly")]
 impl<V: Eq> Eq for VecMap<V> {}
 
+#[cfg(feature = "nightly")]
 impl<V: PartialOrd> PartialOrd for VecMap<V> {
     #[inline]
     fn partial_cmp(&self, other: &VecMap<V>) -> Option<Ordering> {
@@ -675,6 +661,7 @@ impl<V: PartialOrd> PartialOrd for VecMap<V> {
     }
 }
 
+#[cfg(feature = "nightly")]
 impl<V: Ord> Ord for VecMap<V> {
     #[inline]
     fn cmp(&self, other: &VecMap<V>) -> Ordering {
@@ -714,8 +701,7 @@ impl<T> IntoIterator for VecMap<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(vecmap)]
-    /// use std::collections::VecMap;
+    /// use vec_map::VecMap;
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
@@ -927,12 +913,14 @@ pub struct IntoIter<V> {
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
+#[cfg(feature = "nightly")]
 pub struct Drain<'a, V:'a> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
+#[cfg(feature = "nightly")]
 impl<'a, V> Iterator for Drain<'a, V> {
     type Item = (usize, V);
 
@@ -940,6 +928,7 @@ impl<'a, V> Iterator for Drain<'a, V> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
+#[cfg(feature = "nightly")]
 impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
     fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
 }
@@ -986,7 +975,7 @@ mod test {
 
 	use super::VecMap;
 	use super::Entry::{Occupied, Vacant};
-	use std::hash::{SipHasher, hash};
+	#[cfg(feature = "nightly")] use std::hash::{SipHasher, hash};
 
 	#[test]
 	fn test_get_mut() {
@@ -1181,18 +1170,19 @@ mod test {
 	#[test]
 	fn test_move_iter() {
 	    let mut m: VecMap<Box<_>> = VecMap::new();
-	    m.insert(1, box 2);
+	    m.insert(1, Box::new(2));
 	    let mut called = false;
 	    for (k, v) in m {
 	        assert!(!called);
 	        called = true;
 	        assert_eq!(k, 1);
-	        assert_eq!(v, box 2);
+	        assert_eq!(v, Box::new(2));
 	    }
 	    assert!(called);
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_drain_iterator() {
 	    let mut map = VecMap::new();
 	    map.insert(1, "a");
@@ -1206,6 +1196,7 @@ mod test {
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_append() {
 	    let mut a = VecMap::new();
 	    a.insert(1, "a");
@@ -1305,10 +1296,11 @@ mod test {
 	    a.insert(4, 'y');
 	    a.insert(6, 'z');
 
-	    assert!(a.clone() == a);
+	    assert_eq!(a.clone().iter().collect::<Vec<_>>(), [(1, &'x'), (4, &'y'), (6, &'z')]);
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_eq() {
 	    let mut a = VecMap::new();
 	    let mut b = VecMap::new();
@@ -1331,6 +1323,7 @@ mod test {
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_lt() {
 	    let mut a = VecMap::new();
 	    let mut b = VecMap::new();
@@ -1349,6 +1342,7 @@ mod test {
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_ord() {
 	    let mut a = VecMap::new();
 	    let mut b = VecMap::new();
@@ -1363,6 +1357,7 @@ mod test {
 	}
 
 	#[test]
+    #[cfg(feature = "nightly")]
 	fn test_hash() {
 	    let mut x = VecMap::new();
 	    let mut y = VecMap::new();
