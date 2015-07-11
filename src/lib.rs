@@ -59,6 +59,7 @@ use std::vec;
 /// months.clear();
 /// assert!(months.is_empty());
 /// ```
+#[derive(Clone)]
 pub struct VecMap<V> {
     v: Vec<Option<V>>,
 }
@@ -89,18 +90,6 @@ pub struct OccupiedEntry<'a, V:'a> {
 impl<V> Default for VecMap<V> {
     #[inline]
     fn default() -> VecMap<V> { VecMap::new() }
-}
-
-impl<V:Clone> Clone for VecMap<V> {
-    #[inline]
-    fn clone(&self) -> VecMap<V> {
-        VecMap { v: self.v.clone() }
-    }
-
-    #[inline]
-    fn clone_from(&mut self, source: &VecMap<V>) {
-        self.v.clone_from(&source.v);
-    }
 }
 
 impl<V: Hash> Hash for VecMap<V> {
