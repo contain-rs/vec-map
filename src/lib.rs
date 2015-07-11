@@ -1362,7 +1362,7 @@ mod test {
 
     #[test]
     fn test_from_iter() {
-        let xs = vec![(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'e')];
+        let xs = [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'e')];
 
         let map: VecMap<_> = xs.iter().cloned().collect();
 
