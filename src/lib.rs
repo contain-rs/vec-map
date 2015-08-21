@@ -12,7 +12,6 @@
 //! are O(highest integer key).
 
 #![cfg_attr(feature = "nightly", feature(drain, iter_order))]
-#![cfg_attr(all(feature = "nightly", test), feature(hash_default))]
 
 use self::Entry::*;
 
@@ -962,7 +961,7 @@ impl<V> DoubleEndedIterator for IntoIter<V> {
 mod test {
     use super::VecMap;
     use super::Entry::{Occupied, Vacant};
-    #[cfg(feature = "nightly")] use std::hash::{SipHasher, hash};
+    use std::hash::{Hash, Hasher, SipHasher};
 
     #[test]
     fn test_get_mut() {
@@ -1344,12 +1343,17 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_hash() {
+        fn hash<T: Hash>(t: &T) -> u64 {
+            let mut s = SipHasher::new();
+            t.hash(&mut s);
+            s.finish()
+        }
+
         let mut x = VecMap::new();
         let mut y = VecMap::new();
 
-        assert!(hash::<_, SipHasher>(&x) == hash::<_, SipHasher>(&y));
+        assert!(hash(&x) == hash(&y));
         x.insert(1, 'a');
         x.insert(2, 'b');
         x.insert(3, 'c');
@@ -1358,12 +1362,12 @@ mod test {
         y.insert(2, 'b');
         y.insert(1, 'a');
 
-        assert!(hash::<_, SipHasher>(&x) == hash::<_, SipHasher>(&y));
+        assert!(hash(&x) == hash(&y));
 
         x.insert(1000, 'd');
         x.remove(&1000);
 
-        assert!(hash::<_, SipHasher>(&x) == hash::<_, SipHasher>(&y));
+        assert!(hash(&x) == hash(&y));
     }
 
     #[test]
