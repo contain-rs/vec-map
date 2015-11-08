@@ -11,7 +11,7 @@
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
 
-#![cfg_attr(feature = "nightly", feature(drain, iter_order))]
+#![cfg_attr(feature = "nightly", feature(drain))]
 
 use self::Entry::*;
 
@@ -20,7 +20,6 @@ use std::cmp::max;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::iter::{Enumerate, FilterMap, Map, FromIterator};
-#[cfg(feature = "nightly")] use std::iter;
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 use std::slice;
@@ -631,7 +630,7 @@ impl<'a, V> OccupiedEntry<'a, V> {
 #[cfg(feature = "nightly")]
 impl<V: PartialEq> PartialEq for VecMap<V> {
     fn eq(&self, other: &VecMap<V>) -> bool {
-        iter::order::eq(self.iter(), other.iter())
+        self.iter().eq(other.iter())
     }
 }
 
@@ -642,7 +641,7 @@ impl<V: Eq> Eq for VecMap<V> {}
 impl<V: PartialOrd> PartialOrd for VecMap<V> {
     #[inline]
     fn partial_cmp(&self, other: &VecMap<V>) -> Option<Ordering> {
-        iter::order::partial_cmp(self.iter(), other.iter())
+        self.iter().partial_cmp(other.iter())
     }
 }
 
@@ -650,7 +649,7 @@ impl<V: PartialOrd> PartialOrd for VecMap<V> {
 impl<V: Ord> Ord for VecMap<V> {
     #[inline]
     fn cmp(&self, other: &VecMap<V>) -> Ordering {
-        iter::order::cmp(self.iter(), other.iter())
+        self.iter().cmp(other.iter())
     }
 }
 
