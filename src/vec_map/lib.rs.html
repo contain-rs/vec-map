@@ -24,10 +24,10 @@
 
     
 
-    <section class="sidebar">
+    <nav class="sidebar">
         
         
-    </section>
+    </nav>
 
     <nav class="sub">
         <form class="search-form js-only">
@@ -1514,7 +1514,6 @@
 <span id="1472">1472</span>
 <span id="1473">1473</span>
 <span id="1474">1474</span>
-<span id="1475">1475</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT</span>
 <span class='comment'>// file at the top-level directory of this distribution and at</span>
@@ -1529,7 +1528,7 @@
 <span class='doccomment'>//! A simple map based on a vector for small integer keys. Space requirements</span>
 <span class='doccomment'>//! are O(highest integer key).</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;nightly&quot;</span>, <span class='ident'>feature</span>(<span class='ident'>drain</span>, <span class='ident'>iter_order</span>))]</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;nightly&quot;</span>, <span class='ident'>feature</span>(<span class='ident'>drain</span>))]</span>
 
 <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>Entry</span>::<span class='op'>*</span>;
 
@@ -1538,7 +1537,6 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>hash</span>::{<span class='ident'>Hash</span>, <span class='ident'>Hasher</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>Enumerate</span>, <span class='ident'>FilterMap</span>, <span class='ident'>Map</span>, <span class='ident'>FromIterator</span>};
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;nightly&quot;</span>)]</span> <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>::{<span class='ident'>replace</span>, <span class='ident'>swap</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Index</span>, <span class='ident'>IndexMut</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>;
@@ -2149,7 +2147,7 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;nightly&quot;</span>)]</span>
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>PartialEq</span><span class='op'>&gt;</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>iter</span>::<span class='ident'>order</span>::<span class='ident'>eq</span>(<span class='self'>self</span>.<span class='ident'>iter</span>(), <span class='ident'>other</span>.<span class='ident'>iter</span>())
+        <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>eq</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
 
@@ -2160,7 +2158,7 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span> <span class='ident'>PartialOrd</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
-        <span class='ident'>iter</span>::<span class='ident'>order</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>.<span class='ident'>iter</span>(), <span class='ident'>other</span>.<span class='ident'>iter</span>())
+        <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>partial_cmp</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
 
@@ -2168,7 +2166,7 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span> <span class='ident'>Ord</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Ordering</span> {
-        <span class='ident'>iter</span>::<span class='ident'>order</span>::<span class='ident'>cmp</span>(<span class='self'>self</span>.<span class='ident'>iter</span>(), <span class='ident'>other</span>.<span class='ident'>iter</span>())
+        <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>cmp</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
 
@@ -2997,10 +2995,12 @@
 
     <section class="footer"></section>
 
-    <div id="help" class="hidden">
+    <aside id="help" class="hidden">
         <div>
+            <h1 class="hidden">Help</h1>
+
             <div class="shortcuts">
-                <h1>Keyboard Shortcuts</h1>
+                <h2>Keyboard Shortcuts</h2>
 
                 <dl>
                     <dt>?</dt>
@@ -3017,7 +3017,7 @@
             </div>
 
             <div class="infos">
-                <h1>Search Tricks</h1>
+                <h2>Search Tricks</h2>
 
                 <p>
                     Prefix searches with a type followed by a colon (e.g.
@@ -3037,7 +3037,7 @@
                 </p>
             </div>
         </div>
-    </div>
+    </aside>
 
     
 
