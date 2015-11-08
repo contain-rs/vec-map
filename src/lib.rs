@@ -654,21 +654,8 @@ impl<V: Ord> Ord for VecMap<V> {
 }
 
 impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
-    #[cfg(not(feature = "nightly"))]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(f, "{{"));
-
-        for (i, (k, v)) in self.iter().enumerate() {
-            if i != 0 { try!(write!(f, ", ")); }
-            try!(write!(f, "{}: {:?}", k, *v));
-        }
-
-        write!(f, "}}")
-    }
-
-    #[cfg(feature = "nightly")]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_map().entries(self.iter()).finish()
+        f.debug_map().entries(self).finish()
     }
 }
 
