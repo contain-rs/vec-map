@@ -37,17 +37,17 @@ use std::vec;
 /// months.insert(2, "Feb");
 /// months.insert(3, "Mar");
 ///
-/// if !months.contains_key(&12) {
+/// if !months.contains_key(12) {
 ///     println!("The end is near!");
 /// }
 ///
-/// assert_eq!(months.get(&1), Some(&"Jan"));
+/// assert_eq!(months.get(1), Some(&"Jan"));
 ///
-/// if let Some(value) = months.get_mut(&3) {
+/// if let Some(value) = months.get_mut(3) {
 ///     *value = "Venus";
 /// }
 ///
-/// assert_eq!(months.get(&3), Some(&"Venus"));
+/// assert_eq!(months.get(3), Some(&"Venus"));
 ///
 /// // Print out all months
 /// for (key, value) in &months {
@@ -427,12 +427,12 @@ impl<V> VecMap<V> {
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
-    /// assert_eq!(map.get(&1), Some(&"a"));
-    /// assert_eq!(map.get(&2), None);
+    /// assert_eq!(map.get(1), Some(&"a"));
+    /// assert_eq!(map.get(2), None);
     /// ```
-    pub fn get(&self, key: &usize) -> Option<&V> {
-        if *key < self.v.len() {
-            match self.v[*key] {
+    pub fn get(&self, key: usize) -> Option<&V> {
+        if key < self.v.len() {
+            match self.v[key] {
               Some(ref value) => Some(value),
               None => None
             }
@@ -450,11 +450,11 @@ impl<V> VecMap<V> {
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
-    /// assert_eq!(map.contains_key(&1), true);
-    /// assert_eq!(map.contains_key(&2), false);
+    /// assert_eq!(map.contains_key(1), true);
+    /// assert_eq!(map.contains_key(2), false);
     /// ```
     #[inline]
-    pub fn contains_key(&self, key: &usize) -> bool {
+    pub fn contains_key(&self, key: usize) -> bool {
         self.get(key).is_some()
     }
 
@@ -467,14 +467,14 @@ impl<V> VecMap<V> {
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
-    /// if let Some(x) = map.get_mut(&1) {
+    /// if let Some(x) = map.get_mut(1) {
     ///     *x = "b";
     /// }
     /// assert_eq!(map[1], "b");
     /// ```
-    pub fn get_mut(&mut self, key: &usize) -> Option<&mut V> {
-        if *key < self.v.len() {
-            match *(&mut self.v[*key]) {
+    pub fn get_mut(&mut self, key: usize) -> Option<&mut V> {
+        if key < self.v.len() {
+            match *(&mut self.v[key]) {
               Some(ref mut value) => Some(value),
               None => None
             }
@@ -517,14 +517,14 @@ impl<V> VecMap<V> {
     ///
     /// let mut map = VecMap::new();
     /// map.insert(1, "a");
-    /// assert_eq!(map.remove(&1), Some("a"));
-    /// assert_eq!(map.remove(&1), None);
+    /// assert_eq!(map.remove(1), Some("a"));
+    /// assert_eq!(map.remove(1), None);
     /// ```
-    pub fn remove(&mut self, key: &usize) -> Option<V> {
-        if *key >= self.v.len() {
+    pub fn remove(&mut self, key: usize) -> Option<V> {
+        if key >= self.v.len() {
             return None;
         }
-        let result = &mut self.v[*key];
+        let result = &mut self.v[key];
         result.take()
     }
 
@@ -549,7 +549,7 @@ impl<V> VecMap<V> {
         // entry possible, because weird non-lexical borrows issues make it
         // completely insane to do any other way. That said, Entry is a border-line
         // useless construct on VecMap, so it's hardly a big loss.
-        if self.contains_key(&key) {
+        if self.contains_key(key) {
             Occupied(OccupiedEntry {
                 map: self,
                 index: key,
@@ -623,7 +623,7 @@ impl<'a, V> OccupiedEntry<'a, V> {
     /// Takes the value of the entry out of the map, and returns it.
     pub fn remove(self) -> V {
         let index = self.index;
-        self.map.remove(&index).unwrap()
+        self.map.remove(index).unwrap()
     }
 }
 
@@ -736,7 +736,7 @@ impl<V> Index<usize> for VecMap<V> {
 
     #[inline]
     fn index<'a>(&'a self, i: usize) -> &'a V {
-        self.get(&i).expect("key not present")
+        self.get(i).expect("key not present")
     }
 }
 
@@ -745,21 +745,21 @@ impl<'a,V> Index<&'a usize> for VecMap<V> {
 
     #[inline]
     fn index(&self, i: &usize) -> &V {
-        self.get(i).expect("key not present")
+        self.get(*i).expect("key not present")
     }
 }
 
 impl<V> IndexMut<usize> for VecMap<V> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut V {
-        self.get_mut(&i).expect("key not present")
+        self.get_mut(i).expect("key not present")
     }
 }
 
 impl<'a, V> IndexMut<&'a usize> for VecMap<V> {
     #[inline]
     fn index_mut(&mut self, i: &usize) -> &mut V {
-        self.get_mut(i).expect("key not present")
+        self.get_mut(*i).expect("key not present")
     }
 }
 
@@ -956,10 +956,10 @@ mod test {
         assert!(m.insert(2, 8).is_none());
         assert!(m.insert(5, 14).is_none());
         let new = 100;
-        match m.get_mut(&5) {
+        match m.get_mut(5) {
             None => panic!(), Some(x) => *x = new
         }
-        assert_eq!(m.get(&5), Some(&new));
+        assert_eq!(m.get(5), Some(&new));
     }
 
     #[test]
@@ -986,9 +986,9 @@ mod test {
         assert!(map.insert(14, 22).is_none());
         map.clear();
         assert!(map.is_empty());
-        assert!(map.get(&5).is_none());
-        assert!(map.get(&11).is_none());
-        assert!(map.get(&14).is_none());
+        assert!(map.get(5).is_none());
+        assert!(map.get(11).is_none());
+        assert!(map.get(14).is_none());
     }
 
     #[test]
@@ -1003,8 +1003,8 @@ mod test {
     fn test_remove() {
         let mut m = VecMap::new();
         m.insert(1, 2);
-        assert_eq!(m.remove(&1), Some(2));
-        assert_eq!(m.remove(&1), None);
+        assert_eq!(m.remove(1), Some(2));
+        assert_eq!(m.remove(1), None);
     }
 
     #[test]
@@ -1351,7 +1351,7 @@ mod test {
         assert!(hash(&x) == hash(&y));
 
         x.insert(1000, 'd');
-        x.remove(&1000);
+        x.remove(1000);
 
         assert!(hash(&x) == hash(&y));
     }
@@ -1363,7 +1363,7 @@ mod test {
         let map: VecMap<_> = xs.iter().cloned().collect();
 
         for &(k, v) in &xs {
-            assert_eq!(map.get(&k), Some(&v));
+            assert_eq!(map.get(k), Some(&v));
         }
     }
 
@@ -1405,7 +1405,7 @@ mod test {
             }
         }
 
-        assert_eq!(map.get(&1).unwrap(), &100);
+        assert_eq!(map.get(1).unwrap(), &100);
         assert_eq!(map.len(), 6);
 
         // Existing key (update)
@@ -1417,7 +1417,7 @@ mod test {
             }
         }
 
-        assert_eq!(map.get(&2).unwrap(), &200);
+        assert_eq!(map.get(2).unwrap(), &200);
         assert_eq!(map.len(), 6);
 
         // Existing key (take)
@@ -1428,7 +1428,7 @@ mod test {
             }
         }
 
-        assert_eq!(map.get(&3), None);
+        assert_eq!(map.get(3), None);
         assert_eq!(map.len(), 5);
 
         // Inexistent key (insert)
@@ -1439,7 +1439,7 @@ mod test {
             }
         }
 
-        assert_eq!(map.get(&10).unwrap(), &1000);
+        assert_eq!(map.get(10).unwrap(), &1000);
         assert_eq!(map.len(), 6);
     }
 
