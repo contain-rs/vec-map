@@ -58,17 +58,17 @@
 <span class='ident'>months</span>.<span class='ident'>insert</span>(<span class='number'>2</span>, <span class='string'>&quot;Feb&quot;</span>);
 <span class='ident'>months</span>.<span class='ident'>insert</span>(<span class='number'>3</span>, <span class='string'>&quot;Mar&quot;</span>);
 
-<span class='kw'>if</span> <span class='op'>!</span><span class='ident'>months</span>.<span class='ident'>contains_key</span>(<span class='kw-2'>&amp;</span><span class='number'>12</span>) {
+<span class='kw'>if</span> <span class='op'>!</span><span class='ident'>months</span>.<span class='ident'>contains_key</span>(<span class='number'>12</span>) {
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;The end is near!&quot;</span>);
 }
 
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>months</span>.<span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;Jan&quot;</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>months</span>.<span class='ident'>get</span>(<span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;Jan&quot;</span>));
 
-<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>value</span>) <span class='op'>=</span> <span class='ident'>months</span>.<span class='ident'>get_mut</span>(<span class='kw-2'>&amp;</span><span class='number'>3</span>) {
+<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>value</span>) <span class='op'>=</span> <span class='ident'>months</span>.<span class='ident'>get_mut</span>(<span class='number'>3</span>) {
     <span class='op'>*</span><span class='ident'>value</span> <span class='op'>=</span> <span class='string'>&quot;Venus&quot;</span>;
 }
 
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>months</span>.<span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='number'>3</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;Venus&quot;</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>months</span>.<span class='ident'>get</span>(<span class='number'>3</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;Venus&quot;</span>));
 
 <span class='comment'>// Print out all months</span>
 <span class='kw'>for</span> (<span class='ident'>key</span>, <span class='ident'>value</span>) <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='ident'>months</span> {
@@ -220,7 +220,7 @@ and the returned <code>Self</code> contains elements <code>[at, max_key)</code>.
 <span class='ident'>a</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='string'>&quot;a&quot;</span>);
 <span class='ident'>a</span>.<span class='ident'>clear</span>();
 <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>a</span>.<span class='ident'>is_empty</span>());</pre>
-</div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self, key: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
+</div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self, key: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;V&gt;</code></h4>
 <div class='docblock'><p>Returns a reference to the value corresponding to the key.</p>
 
 <h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1><pre class='rust rust-example-rendered'>
@@ -228,9 +228,9 @@ and the returned <code>Self</code> contains elements <code>[at, max_key)</code>.
 
 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
 <span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='string'>&quot;a&quot;</span>);
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;a&quot;</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>get</span>(<span class='kw-2'>&amp;</span><span class='number'>2</span>), <span class='prelude-val'>None</span>);</pre>
-</div><h4 id='method.contains_key' class='method'><code>fn <a href='#method.contains_key' class='fnname'>contains_key</a>(&amp;self, key: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>get</span>(<span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='kw-2'>&amp;</span><span class='string'>&quot;a&quot;</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>get</span>(<span class='number'>2</span>), <span class='prelude-val'>None</span>);</pre>
+</div><h4 id='method.contains_key' class='method'><code>fn <a href='#method.contains_key' class='fnname'>contains_key</a>(&amp;self, key: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Returns true if the map contains a value for the specified key.</p>
 
 <h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1><pre class='rust rust-example-rendered'>
@@ -238,9 +238,9 @@ and the returned <code>Self</code> contains elements <code>[at, max_key)</code>.
 
 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
 <span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='string'>&quot;a&quot;</span>);
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>contains_key</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>), <span class='boolval'>true</span>);
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>contains_key</span>(<span class='kw-2'>&amp;</span><span class='number'>2</span>), <span class='boolval'>false</span>);</pre>
-</div><h4 id='method.get_mut' class='method'><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>contains_key</span>(<span class='number'>1</span>), <span class='boolval'>true</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>contains_key</span>(<span class='number'>2</span>), <span class='boolval'>false</span>);</pre>
+</div><h4 id='method.get_mut' class='method'><code>fn <a href='#method.get_mut' class='fnname'>get_mut</a>(&amp;mut self, key: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut V&gt;</code></h4>
 <div class='docblock'><p>Returns a mutable reference to the value corresponding to the key.</p>
 
 <h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1><pre class='rust rust-example-rendered'>
@@ -248,7 +248,7 @@ and the returned <code>Self</code> contains elements <code>[at, max_key)</code>.
 
 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
 <span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='string'>&quot;a&quot;</span>);
-<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='ident'>map</span>.<span class='ident'>get_mut</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>) {
+<span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='ident'>map</span>.<span class='ident'>get_mut</span>(<span class='number'>1</span>) {
     <span class='op'>*</span><span class='ident'>x</span> <span class='op'>=</span> <span class='string'>&quot;b&quot;</span>;
 }
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>[<span class='number'>1</span>], <span class='string'>&quot;b&quot;</span>);</pre>
@@ -266,7 +266,7 @@ present in the map, that value is returned. Otherwise, <code>None</code> is retu
 <span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>37</span>, <span class='string'>&quot;b&quot;</span>);
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>37</span>, <span class='string'>&quot;c&quot;</span>), <span class='prelude-val'>Some</span>(<span class='string'>&quot;b&quot;</span>));
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>[<span class='number'>37</span>], <span class='string'>&quot;c&quot;</span>);</pre>
-</div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
+</div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, key: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Removes a key from the map, returning the value at the key if the key
 was previously in the map.</p>
 
@@ -275,8 +275,8 @@ was previously in the map.</p>
 
 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
 <span class='ident'>map</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='string'>&quot;a&quot;</span>);
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='string'>&quot;a&quot;</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='number'>1</span>), <span class='prelude-val'>None</span>);</pre>
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>remove</span>(<span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='string'>&quot;a&quot;</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>map</span>.<span class='ident'>remove</span>(<span class='number'>1</span>), <span class='prelude-val'>None</span>);</pre>
 </div><h4 id='method.entry' class='method'><code>fn <a href='#method.entry' class='fnname'>entry</a>(&amp;mut self, key: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='../vec_map/enum.Entry.html' title='vec_map::Entry'>Entry</a>&lt;V&gt;</code></h4>
 <div class='docblock'><p>Gets the given key&#39;s corresponding entry in the map for in-place manipulation.</p>
 
