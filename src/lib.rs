@@ -13,6 +13,12 @@
 
 #![cfg_attr(feature = "nightly", feature(drain))]
 
+// optional serde support
+#![cfg_attr(feature = "eders", feature(const_fn, custom_derive, plugin))]
+#![cfg_attr(feature = "eders", plugin(serde_macros))]
+#[cfg(feature = "eders")]
+extern crate serde;
+
 use self::Entry::*;
 
 use std::cmp::max;
@@ -58,6 +64,7 @@ use std::vec;
 /// assert!(months.is_empty());
 /// ```
 #[derive(Clone)]
+#[cfg_attr(feature = "eders", derive(Serialize, Deserialize))]
 pub struct VecMap<V> {
     v: Vec<Option<V>>,
 }
@@ -1457,5 +1464,14 @@ mod test {
         assert_eq!(a[&1], "one");
         assert_eq!(a[&2], "two");
         assert_eq!(a[&3], "three");
+    }
+
+    #[test]
+    #[cfg(feature = "eders")]
+    fn test_serde() {
+        use serde::{Serialize, Deserialize};
+        fn impls_serde_traits<S: Serialize + Deserialize>() {}
+
+        impls_serde_traits::<VecMap<u32>>();
     }
 }
