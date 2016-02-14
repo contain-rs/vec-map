@@ -19,8 +19,7 @@ extern crate serde;
 
 use self::Entry::*;
 
-use std::cmp::max;
-use std::cmp::Ordering;
+use std::cmp::{Ordering, max};
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::iter::{Enumerate, FilterMap, Map, FromIterator};
@@ -68,7 +67,7 @@ pub struct VecMap<V> {
 }
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
-pub enum Entry<'a, V:'a> {
+pub enum Entry<'a, V: 'a> {
     /// A vacant Entry
     Vacant(VacantEntry<'a, V>),
 
@@ -77,20 +76,20 @@ pub enum Entry<'a, V:'a> {
 }
 
 /// A vacant Entry.
-pub struct VacantEntry<'a, V:'a> {
+pub struct VacantEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 /// An occupied Entry.
-pub struct OccupiedEntry<'a, V:'a> {
+pub struct OccupiedEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 impl<V> Default for VecMap<V> {
     #[inline]
-    fn default() -> VecMap<V> { VecMap::new() }
+    fn default() -> Self { Self::new() }
 }
 
 impl<V: Hash> Hash for VecMap<V> {
@@ -115,7 +114,7 @@ impl<V> VecMap<V> {
     /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// ```
-    pub fn new() -> VecMap<V> { VecMap { v: vec![] } }
+    pub fn new() -> Self { VecMap { v: vec![] } }
 
     /// Creates an empty `VecMap` with space for at least `capacity`
     /// elements before resizing.
@@ -126,7 +125,7 @@ impl<V> VecMap<V> {
     /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
     /// ```
-    pub fn with_capacity(capacity: usize) -> VecMap<V> {
+    pub fn with_capacity(capacity: usize) -> Self {
         VecMap { v: Vec::with_capacity(capacity) }
     }
 
@@ -225,7 +224,7 @@ impl<V> VecMap<V> {
     ///     println!("{}: {}", key, value);
     /// }
     /// ```
-    pub fn iter<'r>(&'r self) -> Iter<'r, V> {
+    pub fn iter(&self) -> Iter<V> {
         Iter {
             front: 0,
             back: self.v.len(),
@@ -255,7 +254,7 @@ impl<V> VecMap<V> {
     ///     assert_eq!(value, &"x");
     /// }
     /// ```
-    pub fn iter_mut<'r>(&'r mut self) -> IterMut<'r, V> {
+    pub fn iter_mut(&mut self) -> IterMut<V> {
         IterMut {
             front: 0,
             back: self.v.len(),
@@ -366,7 +365,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    pub fn drain<'a>(&'a mut self) -> Drain<'a, V> {
+    pub fn drain(&mut self) -> Drain<V> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
         }
@@ -631,7 +630,7 @@ impl<'a, V> OccupiedEntry<'a, V> {
 }
 
 impl<V: PartialEq> PartialEq for VecMap<V> {
-    fn eq(&self, other: &VecMap<V>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.iter().eq(other.iter())
     }
 }
@@ -640,14 +639,14 @@ impl<V: Eq> Eq for VecMap<V> {}
 
 impl<V: PartialOrd> PartialOrd for VecMap<V> {
     #[inline]
-    fn partial_cmp(&self, other: &VecMap<V>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.iter().partial_cmp(other.iter())
     }
 }
 
 impl<V: Ord> Ord for VecMap<V> {
     #[inline]
-    fn cmp(&self, other: &VecMap<V>) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         self.iter().cmp(other.iter())
     }
 }
@@ -659,8 +658,8 @@ impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
 }
 
 impl<V> FromIterator<(usize, V)> for VecMap<V> {
-    fn from_iter<I: IntoIterator<Item=(usize, V)>>(iter: I) -> VecMap<V> {
-        let mut map = VecMap::new();
+    fn from_iter<I: IntoIterator<Item = (usize, V)>>(iter: I) -> Self {
+        let mut map = Self::new();
         map.extend(iter);
         map
     }
@@ -717,7 +716,7 @@ impl<'a, T> IntoIterator for &'a mut VecMap<T> {
 }
 
 impl<V> Extend<(usize, V)> for VecMap<V> {
-    fn extend<I: IntoIterator<Item=(usize, V)>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = (usize, V)>>(&mut self, iter: I) {
         for (k, v) in iter {
             self.insert(k, v);
         }
@@ -725,7 +724,7 @@ impl<V> Extend<(usize, V)> for VecMap<V> {
 }
 
 impl<'a, V: Copy> Extend<(usize, &'a V)> for VecMap<V> {
-    fn extend<I: IntoIterator<Item=(usize, &'a V)>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = (usize, &'a V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().map(|(key, &value)| (key, value)));
     }
 }
@@ -734,12 +733,12 @@ impl<V> Index<usize> for VecMap<V> {
     type Output = V;
 
     #[inline]
-    fn index<'a>(&'a self, i: usize) -> &'a V {
+    fn index(&self, i: usize) -> &V {
         self.get(i).expect("key not present")
     }
 }
 
-impl<'a,V> Index<&'a usize> for VecMap<V> {
+impl<'a, V> Index<&'a usize> for VecMap<V> {
     type Output = V;
 
     #[inline]
@@ -823,7 +822,7 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
-pub struct Iter<'a, V:'a> {
+pub struct Iter<'a, V: 'a> {
     front: usize,
     back: usize,
     iter: slice::Iter<'a, Option<V>>
@@ -845,7 +844,7 @@ double_ended_iterator! { impl Iter -> (usize, &'a V), as_ref }
 
 /// An iterator over the key-value pairs of a map, with the
 /// values being mutable.
-pub struct IterMut<'a, V:'a> {
+pub struct IterMut<'a, V: 'a> {
     front: usize,
     back: usize,
     iter: slice::IterMut<'a, Option<V>>
@@ -889,7 +888,7 @@ pub struct IntoIter<V> {
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
-pub struct Drain<'a, V:'a> {
+pub struct Drain<'a, V: 'a> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
     fn((usize, Option<V>)) -> Option<(usize, V)>>
