@@ -22,7 +22,7 @@ use self::Entry::*;
 use std::cmp::{Ordering, max};
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::iter::{Enumerate, FilterMap, Map, FromIterator};
+use std::iter::{Enumerate, FilterMap, FromIterator};
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 use std::slice;
@@ -190,20 +190,14 @@ impl<V> VecMap<V> {
 
     /// Returns an iterator visiting all keys in ascending order of the keys.
     /// The iterator's element type is `usize`.
-    pub fn keys<'r>(&'r self) -> Keys<'r, V> {
-        fn first<A, B>((a, _): (A, B)) -> A { a }
-        let first: fn((usize, &'r V)) -> usize = first; // coerce to fn pointer
-
-        Keys { iter: self.iter().map(first) }
+    pub fn keys(&self) -> Keys<V> {
+        Keys { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all values in ascending order of the keys.
     /// The iterator's element type is `&'r V`.
-    pub fn values<'r>(&'r self) -> Values<'r, V> {
-        fn second<A, B>((_, b): (A, B)) -> B { b }
-        let second: fn((usize, &'r V)) -> &'r V = second; // coerce to fn pointer
-
-        Values { iter: self.iter().map(second) }
+    pub fn values(&self) -> Values<V> {
+        Values { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all key-value pairs in ascending order of the keys.
@@ -688,12 +682,7 @@ impl<T> IntoIterator for VecMap<T> {
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
     fn into_iter(self) -> IntoIter<T> {
-        fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
-            v.map(|v| (i, v))
-        }
-        let filter: fn((usize, Option<T>)) -> Option<(usize, T)> = filter; // coerce to fn ptr
-
-        IntoIter { iter: self.v.into_iter().enumerate().filter_map(filter) }
+        IntoIter { iter: self.v.into_iter().enumerate() }
     }
 }
 
@@ -855,7 +844,7 @@ double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
 pub struct Keys<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> usize>
+    iter: Iter<'a, V>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
@@ -869,7 +858,7 @@ impl<'a, V> Clone for Keys<'a, V> {
 
 /// An iterator over the values of a map.
 pub struct Values<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> &'a V>
+    iter: Iter<'a, V>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
@@ -883,9 +872,7 @@ impl<'a, V> Clone for Values<'a, V> {
 
 /// A consuming iterator over the key-value pairs of a map.
 pub struct IntoIter<V> {
-    iter: FilterMap<
-    Enumerate<vec::IntoIter<Option<V>>>,
-    fn((usize, Option<V>)) -> Option<(usize, V)>>
+    iter: Enumerate<vec::IntoIter<Option<V>>>,
 }
 
 pub struct Drain<'a, V: 'a> {
@@ -908,34 +895,64 @@ impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
 impl<'a, V> Iterator for Keys<'a, V> {
     type Item = usize;
 
-    fn next(&mut self) -> Option<usize> { self.iter.next() }
+    fn next(&mut self) -> Option<usize> { self.iter.next().map(|e| e.0) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a, V> DoubleEndedIterator for Keys<'a, V> {
-    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<usize> { self.iter.next_back().map(|e| e.0) }
 }
 
 impl<'a, V> Iterator for Values<'a, V> {
     type Item = &'a V;
 
-    fn next(&mut self) -> Option<(&'a V)> { self.iter.next() }
+    fn next(&mut self) -> Option<(&'a V)> { self.iter.next().map(|e| e.1) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a, V> DoubleEndedIterator for Values<'a, V> {
-    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back().map(|e| e.1) }
 }
 
 impl<V> Iterator for IntoIter<V> {
     type Item = (usize, V);
 
-    fn next(&mut self) -> Option<(usize, V)> { self.iter.next() }
+    fn next(&mut self) -> Option<(usize, V)> {
+        loop {
+            match self.iter.next() {
+                None => return None,
+                Some((i, Some(value))) => return Some((i, value)),
+                _ => {}
+            }
+        }
+    }
+
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<V> DoubleEndedIterator for IntoIter<V> {
-    fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(usize, V)> {
+        loop {
+            match self.iter.next_back() {
+                None => return None,
+                Some((i, Some(value))) => return Some((i, value)),
+                _ => {}
+            }
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn assert_properties() {
+    fn vec_map_covariant<'a, T>(map: VecMap<&'static T>) -> VecMap<&'a T> { map }
+
+    fn into_iter_covariant<'a, T>(iter: IntoIter<&'static T>) -> IntoIter<&'a T> { iter }
+
+    fn iter_covariant<'i, 'a, T>(iter: Iter<'i, &'static T>) -> Iter<'i, &'a T> { iter }
+
+    fn keys_covariant<'i, 'a, T>(iter: Keys<'i, &'static T>) -> Keys<'i, &'a T> { iter }
+
+    fn values_covariant<'i, 'a, T>(iter: Values<'i, &'static T>) -> Values<'i, &'a T> { iter }
 }
 
 #[cfg(test)]
