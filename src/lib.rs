@@ -11,8 +11,6 @@
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
 
-#![cfg_attr(feature = "nightly", feature(drain))]
-
 // optional serde support
 #![cfg_attr(feature = "eders", feature(const_fn, custom_derive, plugin))]
 #![cfg_attr(feature = "eders", plugin(serde_macros))]
@@ -22,7 +20,7 @@ extern crate serde;
 use self::Entry::*;
 
 use std::cmp::max;
-#[cfg(feature = "nightly")] use std::cmp::Ordering;
+use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::iter::{Enumerate, FilterMap, Map, FromIterator};
@@ -289,7 +287,6 @@ impl<V> VecMap<V> {
     /// assert_eq!(a[3], "c");
     /// assert_eq!(a[4], "d");
     /// ```
-    #[cfg(feature = "nightly")]
     pub fn append(&mut self, other: &mut Self) {
         self.extend(other.drain());
     }
@@ -369,7 +366,6 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    #[cfg(feature = "nightly")]
     pub fn drain<'a>(&'a mut self) -> Drain<'a, V> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
@@ -634,17 +630,14 @@ impl<'a, V> OccupiedEntry<'a, V> {
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: PartialEq> PartialEq for VecMap<V> {
     fn eq(&self, other: &VecMap<V>) -> bool {
         self.iter().eq(other.iter())
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: Eq> Eq for VecMap<V> {}
 
-#[cfg(feature = "nightly")]
 impl<V: PartialOrd> PartialOrd for VecMap<V> {
     #[inline]
     fn partial_cmp(&self, other: &VecMap<V>) -> Option<Ordering> {
@@ -652,7 +645,6 @@ impl<V: PartialOrd> PartialOrd for VecMap<V> {
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: Ord> Ord for VecMap<V> {
     #[inline]
     fn cmp(&self, other: &VecMap<V>) -> Ordering {
@@ -897,14 +889,12 @@ pub struct IntoIter<V> {
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
-#[cfg(feature = "nightly")]
 pub struct Drain<'a, V:'a> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
-#[cfg(feature = "nightly")]
 impl<'a, V> Iterator for Drain<'a, V> {
     type Item = (usize, V);
 
@@ -912,7 +902,6 @@ impl<'a, V> Iterator for Drain<'a, V> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
-#[cfg(feature = "nightly")]
 impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
     fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
 }
@@ -1161,7 +1150,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_drain_iterator() {
         let mut map = VecMap::new();
         map.insert(1, "a");
@@ -1175,7 +1163,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_append() {
         let mut a = VecMap::new();
         a.insert(1, "a");
@@ -1279,7 +1266,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_eq() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
@@ -1302,7 +1288,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_lt() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
@@ -1321,7 +1306,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_ord() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();

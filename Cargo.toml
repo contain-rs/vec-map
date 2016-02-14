@@ -37,7 +37,6 @@ keywords = ["data-structures", "collections", "vecmap", "vec_map", "contain-rs"]
 readme = "README.md"
 
 [features]
-nightly = []
 eders = ["serde", "serde_macros"]
 
 [dependencies]
