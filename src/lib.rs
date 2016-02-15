@@ -8,6 +8,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![deny(missing_docs)]
+
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
 
@@ -875,6 +877,7 @@ pub struct IntoIter<V> {
     iter: Enumerate<vec::IntoIter<Option<V>>>,
 }
 
+/// A draining iterator over the key-value pairs of a map.
 pub struct Drain<'a, V: 'a> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
