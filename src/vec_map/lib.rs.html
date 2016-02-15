@@ -9,6 +9,7 @@
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -1501,6 +1502,22 @@
 <span id="1459">1459</span>
 <span id="1460">1460</span>
 <span id="1461">1461</span>
+<span id="1462">1462</span>
+<span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
+<span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
+<span id="1474">1474</span>
+<span id="1475">1475</span>
+<span id="1476">1476</span>
+<span id="1477">1477</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT</span>
 <span class='comment'>// file at the top-level directory of this distribution and at</span>
@@ -1516,6 +1533,12 @@
 <span class='doccomment'>//! are O(highest integer key).</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;nightly&quot;</span>, <span class='ident'>feature</span>(<span class='ident'>drain</span>))]</span>
+
+<span class='comment'>// optional serde support</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;eders&quot;</span>, <span class='ident'>feature</span>(<span class='ident'>const_fn</span>, <span class='ident'>custom_derive</span>, <span class='ident'>plugin</span>))]</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;eders&quot;</span>, <span class='ident'>plugin</span>(<span class='ident'>serde_macros</span>))]</span>
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;eders&quot;</span>)]</span>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>serde</span>;
 
 <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>Entry</span>::<span class='op'>*</span>;
 
@@ -1562,6 +1585,7 @@
 <span class='doccomment'>/// assert!(months.is_empty());</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
+<span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;eders&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='ident'>v</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>,
 }
@@ -2962,6 +2986,15 @@
         <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>[<span class='kw-2'>&amp;</span><span class='number'>2</span>], <span class='string'>&quot;two&quot;</span>);
         <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>a</span>[<span class='kw-2'>&amp;</span><span class='number'>3</span>], <span class='string'>&quot;three&quot;</span>);
     }
+
+    <span class='attribute'>#[<span class='ident'>test</span>]</span>
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;eders&quot;</span>)]</span>
+    <span class='kw'>fn</span> <span class='ident'>test_serde</span>() {
+        <span class='kw'>use</span> <span class='ident'>serde</span>::{<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>};
+        <span class='kw'>fn</span> <span class='ident'>impls_serde_traits</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Serialize</span> <span class='op'>+</span> <span class='ident'>Deserialize</span><span class='op'>&gt;</span>() {}
+
+        <span class='ident'>impls_serde_traits</span>::<span class='op'>&lt;</span><span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;&gt;</span>();
+    }
 }
 </pre>
 </section>
@@ -3023,6 +3056,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>
