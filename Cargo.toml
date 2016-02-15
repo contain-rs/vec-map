@@ -38,3 +38,8 @@ readme = "README.md"
 
 [features]
 nightly = []
+eders = ["serde", "serde_macros"]
+
+[dependencies]
+serde = { version = "0.6", optional = true }
+serde_macros = { version = "0.6", optional = true }
