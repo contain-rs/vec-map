@@ -13,6 +13,7 @@ script:
     - cargo doc --no-deps
 after_success: |
     [ "$TRAVIS_RUST_VERSION" = nightly ] &&
+    [ "$FEATURES" = "" ] &&
     [ "$TRAVIS_BRANCH" = master ] &&
     [ "$TRAVIS_PULL_REQUEST" = false ] &&
     bash deploy-docs.sh
