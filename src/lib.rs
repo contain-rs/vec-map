@@ -8,10 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![deny(missing_docs)]
+
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
-
-#![cfg_attr(feature = "nightly", feature(drain))]
 
 // optional serde support
 #![cfg_attr(feature = "eders", feature(const_fn, custom_derive, plugin))]
@@ -21,11 +21,10 @@ extern crate serde;
 
 use self::Entry::*;
 
-use std::cmp::max;
-#[cfg(feature = "nightly")] use std::cmp::Ordering;
+use std::cmp::{Ordering, max};
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::iter::{Enumerate, FilterMap, Map, FromIterator};
+use std::iter::{Enumerate, FilterMap, FromIterator};
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 use std::slice;
@@ -70,7 +69,7 @@ pub struct VecMap<V> {
 }
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
-pub enum Entry<'a, V:'a> {
+pub enum Entry<'a, V: 'a> {
     /// A vacant Entry
     Vacant(VacantEntry<'a, V>),
 
@@ -79,20 +78,20 @@ pub enum Entry<'a, V:'a> {
 }
 
 /// A vacant Entry.
-pub struct VacantEntry<'a, V:'a> {
+pub struct VacantEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 /// An occupied Entry.
-pub struct OccupiedEntry<'a, V:'a> {
+pub struct OccupiedEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 impl<V> Default for VecMap<V> {
     #[inline]
-    fn default() -> VecMap<V> { VecMap::new() }
+    fn default() -> Self { Self::new() }
 }
 
 impl<V: Hash> Hash for VecMap<V> {
@@ -117,7 +116,7 @@ impl<V> VecMap<V> {
     /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// ```
-    pub fn new() -> VecMap<V> { VecMap { v: vec![] } }
+    pub fn new() -> Self { VecMap { v: vec![] } }
 
     /// Creates an empty `VecMap` with space for at least `capacity`
     /// elements before resizing.
@@ -128,7 +127,7 @@ impl<V> VecMap<V> {
     /// use vec_map::VecMap;
     /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
     /// ```
-    pub fn with_capacity(capacity: usize) -> VecMap<V> {
+    pub fn with_capacity(capacity: usize) -> Self {
         VecMap { v: Vec::with_capacity(capacity) }
     }
 
@@ -193,20 +192,14 @@ impl<V> VecMap<V> {
 
     /// Returns an iterator visiting all keys in ascending order of the keys.
     /// The iterator's element type is `usize`.
-    pub fn keys<'r>(&'r self) -> Keys<'r, V> {
-        fn first<A, B>((a, _): (A, B)) -> A { a }
-        let first: fn((usize, &'r V)) -> usize = first; // coerce to fn pointer
-
-        Keys { iter: self.iter().map(first) }
+    pub fn keys(&self) -> Keys<V> {
+        Keys { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all values in ascending order of the keys.
     /// The iterator's element type is `&'r V`.
-    pub fn values<'r>(&'r self) -> Values<'r, V> {
-        fn second<A, B>((_, b): (A, B)) -> B { b }
-        let second: fn((usize, &'r V)) -> &'r V = second; // coerce to fn pointer
-
-        Values { iter: self.iter().map(second) }
+    pub fn values(&self) -> Values<V> {
+        Values { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all key-value pairs in ascending order of the keys.
@@ -227,7 +220,7 @@ impl<V> VecMap<V> {
     ///     println!("{}: {}", key, value);
     /// }
     /// ```
-    pub fn iter<'r>(&'r self) -> Iter<'r, V> {
+    pub fn iter(&self) -> Iter<V> {
         Iter {
             front: 0,
             back: self.v.len(),
@@ -257,7 +250,7 @@ impl<V> VecMap<V> {
     ///     assert_eq!(value, &"x");
     /// }
     /// ```
-    pub fn iter_mut<'r>(&'r mut self) -> IterMut<'r, V> {
+    pub fn iter_mut(&mut self) -> IterMut<V> {
         IterMut {
             front: 0,
             back: self.v.len(),
@@ -289,7 +282,6 @@ impl<V> VecMap<V> {
     /// assert_eq!(a[3], "c");
     /// assert_eq!(a[4], "d");
     /// ```
-    #[cfg(feature = "nightly")]
     pub fn append(&mut self, other: &mut Self) {
         self.extend(other.drain());
     }
@@ -369,8 +361,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    #[cfg(feature = "nightly")]
-    pub fn drain<'a>(&'a mut self) -> Drain<'a, V> {
+    pub fn drain(&mut self) -> Drain<V> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
         }
@@ -634,28 +625,24 @@ impl<'a, V> OccupiedEntry<'a, V> {
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: PartialEq> PartialEq for VecMap<V> {
-    fn eq(&self, other: &VecMap<V>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.iter().eq(other.iter())
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: Eq> Eq for VecMap<V> {}
 
-#[cfg(feature = "nightly")]
 impl<V: PartialOrd> PartialOrd for VecMap<V> {
     #[inline]
-    fn partial_cmp(&self, other: &VecMap<V>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.iter().partial_cmp(other.iter())
     }
 }
 
-#[cfg(feature = "nightly")]
 impl<V: Ord> Ord for VecMap<V> {
     #[inline]
-    fn cmp(&self, other: &VecMap<V>) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         self.iter().cmp(other.iter())
     }
 }
@@ -667,8 +654,8 @@ impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
 }
 
 impl<V> FromIterator<(usize, V)> for VecMap<V> {
-    fn from_iter<I: IntoIterator<Item=(usize, V)>>(iter: I) -> VecMap<V> {
-        let mut map = VecMap::new();
+    fn from_iter<I: IntoIterator<Item = (usize, V)>>(iter: I) -> Self {
+        let mut map = Self::new();
         map.extend(iter);
         map
     }
@@ -697,12 +684,7 @@ impl<T> IntoIterator for VecMap<T> {
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
     fn into_iter(self) -> IntoIter<T> {
-        fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
-            v.map(|v| (i, v))
-        }
-        let filter: fn((usize, Option<T>)) -> Option<(usize, T)> = filter; // coerce to fn ptr
-
-        IntoIter { iter: self.v.into_iter().enumerate().filter_map(filter) }
+        IntoIter { iter: self.v.into_iter().enumerate() }
     }
 }
 
@@ -725,7 +707,7 @@ impl<'a, T> IntoIterator for &'a mut VecMap<T> {
 }
 
 impl<V> Extend<(usize, V)> for VecMap<V> {
-    fn extend<I: IntoIterator<Item=(usize, V)>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = (usize, V)>>(&mut self, iter: I) {
         for (k, v) in iter {
             self.insert(k, v);
         }
@@ -733,7 +715,7 @@ impl<V> Extend<(usize, V)> for VecMap<V> {
 }
 
 impl<'a, V: Copy> Extend<(usize, &'a V)> for VecMap<V> {
-    fn extend<I: IntoIterator<Item=(usize, &'a V)>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = (usize, &'a V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().map(|(key, &value)| (key, value)));
     }
 }
@@ -742,12 +724,12 @@ impl<V> Index<usize> for VecMap<V> {
     type Output = V;
 
     #[inline]
-    fn index<'a>(&'a self, i: usize) -> &'a V {
+    fn index(&self, i: usize) -> &V {
         self.get(i).expect("key not present")
     }
 }
 
-impl<'a,V> Index<&'a usize> for VecMap<V> {
+impl<'a, V> Index<&'a usize> for VecMap<V> {
     type Output = V;
 
     #[inline]
@@ -831,7 +813,7 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
-pub struct Iter<'a, V:'a> {
+pub struct Iter<'a, V: 'a> {
     front: usize,
     back: usize,
     iter: slice::Iter<'a, Option<V>>
@@ -853,7 +835,7 @@ double_ended_iterator! { impl Iter -> (usize, &'a V), as_ref }
 
 /// An iterator over the key-value pairs of a map, with the
 /// values being mutable.
-pub struct IterMut<'a, V:'a> {
+pub struct IterMut<'a, V: 'a> {
     front: usize,
     back: usize,
     iter: slice::IterMut<'a, Option<V>>
@@ -864,7 +846,7 @@ double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
 pub struct Keys<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> usize>
+    iter: Iter<'a, V>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
@@ -878,7 +860,7 @@ impl<'a, V> Clone for Keys<'a, V> {
 
 /// An iterator over the values of a map.
 pub struct Values<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> &'a V>
+    iter: Iter<'a, V>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
@@ -892,19 +874,16 @@ impl<'a, V> Clone for Values<'a, V> {
 
 /// A consuming iterator over the key-value pairs of a map.
 pub struct IntoIter<V> {
-    iter: FilterMap<
-    Enumerate<vec::IntoIter<Option<V>>>,
-    fn((usize, Option<V>)) -> Option<(usize, V)>>
+    iter: Enumerate<vec::IntoIter<Option<V>>>,
 }
 
-#[cfg(feature = "nightly")]
-pub struct Drain<'a, V:'a> {
+/// A draining iterator over the key-value pairs of a map.
+pub struct Drain<'a, V: 'a> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
     fn((usize, Option<V>)) -> Option<(usize, V)>>
 }
 
-#[cfg(feature = "nightly")]
 impl<'a, V> Iterator for Drain<'a, V> {
     type Item = (usize, V);
 
@@ -912,7 +891,6 @@ impl<'a, V> Iterator for Drain<'a, V> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
-#[cfg(feature = "nightly")]
 impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
     fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
 }
@@ -920,34 +898,64 @@ impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
 impl<'a, V> Iterator for Keys<'a, V> {
     type Item = usize;
 
-    fn next(&mut self) -> Option<usize> { self.iter.next() }
+    fn next(&mut self) -> Option<usize> { self.iter.next().map(|e| e.0) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a, V> DoubleEndedIterator for Keys<'a, V> {
-    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<usize> { self.iter.next_back().map(|e| e.0) }
 }
 
 impl<'a, V> Iterator for Values<'a, V> {
     type Item = &'a V;
 
-    fn next(&mut self) -> Option<(&'a V)> { self.iter.next() }
+    fn next(&mut self) -> Option<(&'a V)> { self.iter.next().map(|e| e.1) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a, V> DoubleEndedIterator for Values<'a, V> {
-    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back().map(|e| e.1) }
 }
 
 impl<V> Iterator for IntoIter<V> {
     type Item = (usize, V);
 
-    fn next(&mut self) -> Option<(usize, V)> { self.iter.next() }
+    fn next(&mut self) -> Option<(usize, V)> {
+        loop {
+            match self.iter.next() {
+                None => return None,
+                Some((i, Some(value))) => return Some((i, value)),
+                _ => {}
+            }
+        }
+    }
+
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<V> DoubleEndedIterator for IntoIter<V> {
-    fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(usize, V)> {
+        loop {
+            match self.iter.next_back() {
+                None => return None,
+                Some((i, Some(value))) => return Some((i, value)),
+                _ => {}
+            }
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn assert_properties() {
+    fn vec_map_covariant<'a, T>(map: VecMap<&'static T>) -> VecMap<&'a T> { map }
+
+    fn into_iter_covariant<'a, T>(iter: IntoIter<&'static T>) -> IntoIter<&'a T> { iter }
+
+    fn iter_covariant<'i, 'a, T>(iter: Iter<'i, &'static T>) -> Iter<'i, &'a T> { iter }
+
+    fn keys_covariant<'i, 'a, T>(iter: Keys<'i, &'static T>) -> Keys<'i, &'a T> { iter }
+
+    fn values_covariant<'i, 'a, T>(iter: Values<'i, &'static T>) -> Values<'i, &'a T> { iter }
 }
 
 #[cfg(test)]
@@ -1161,7 +1169,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_drain_iterator() {
         let mut map = VecMap::new();
         map.insert(1, "a");
@@ -1175,7 +1182,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_append() {
         let mut a = VecMap::new();
         a.insert(1, "a");
@@ -1279,7 +1285,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_eq() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
@@ -1302,7 +1307,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_lt() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
@@ -1321,7 +1325,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "nightly")]
     fn test_ord() {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
