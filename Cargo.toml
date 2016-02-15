@@ -1,6 +1,6 @@
 [package]
 name = "vec_map"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>",
            "Jorge Aparicio <japaricious@gmail.com>",
            "Alexis Beingessner <a.beingessner@gmail.com>",
@@ -24,7 +24,7 @@ authors = ["Alex Crichton <alex@alexcrichton.com>",
            "Nick Cameron <nrc@ncameron.org>",
            "Patrick Walton <pcwalton@mimiga.net>",
            "Felix S Klock II <>",
-           "Andrew Paseltiner <>",
+           "Andrew Paseltiner <apaseltiner@gmail.com>",
            "Sean McArthur <sean.monstar@gmail.com>",
            "Vadim Petrochenkov <>"]
 
