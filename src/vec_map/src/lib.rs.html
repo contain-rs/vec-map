@@ -9,8 +9,9 @@
 
     <title>lib.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -1615,7 +1616,7 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { <span class='ident'>Self</span>::<span class='ident'>new</span>() }
+    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> { <span class='self'>Self</span>::<span class='ident'>new</span>() }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Hash</span><span class='op'>&gt;</span> <span class='ident'>Hash</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
@@ -1640,7 +1641,7 @@
     <span class='doccomment'>/// use vec_map::VecMap;</span>
     <span class='doccomment'>/// let mut map: VecMap&lt;&amp;str&gt; = VecMap::new();</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { <span class='ident'>VecMap</span> { <span class='ident'>v</span>: <span class='macro'>vec</span><span class='macro'>!</span>[] } }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> { <span class='ident'>VecMap</span> { <span class='ident'>v</span>: <span class='macro'>vec</span><span class='macro'>!</span>[] } }
 
     <span class='doccomment'>/// Creates an empty `VecMap` with space for at least `capacity`</span>
     <span class='doccomment'>/// elements before resizing.</span>
@@ -1651,7 +1652,7 @@
     <span class='doccomment'>/// use vec_map::VecMap;</span>
     <span class='doccomment'>/// let mut map: VecMap&lt;&amp;str&gt; = VecMap::with_capacity(10);</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_capacity</span>(<span class='ident'>capacity</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_capacity</span>(<span class='ident'>capacity</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
         <span class='ident'>VecMap</span> { <span class='ident'>v</span>: <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>capacity</span>) }
     }
 
@@ -1806,7 +1807,7 @@
     <span class='doccomment'>/// assert_eq!(a[3], &quot;c&quot;);</span>
     <span class='doccomment'>/// assert_eq!(a[4], &quot;d&quot;);</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw'>Self</span>) {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>Self</span>) {
         <span class='self'>self</span>.<span class='ident'>extend</span>(<span class='ident'>other</span>.<span class='ident'>drain</span>());
     }
 
@@ -1836,7 +1837,7 @@
     <span class='doccomment'>/// assert_eq!(b[3], &quot;c&quot;);</span>
     <span class='doccomment'>/// assert_eq!(b[4], &quot;d&quot;);</span>
     <span class='doccomment'>/// ```</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>split_off</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>at</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>split_off</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>at</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>other</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
 
         <span class='kw'>if</span> <span class='ident'>at</span> <span class='op'>==</span> <span class='number'>0</span> {
@@ -2150,7 +2151,7 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>PartialEq</span><span class='op'>&gt;</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>eq</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
@@ -2159,14 +2160,14 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span> <span class='ident'>PartialOrd</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>partial_cmp</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span> <span class='ident'>Ord</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Ordering</span> {
+    <span class='kw'>fn</span> <span class='ident'>cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Ordering</span> {
         <span class='self'>self</span>.<span class='ident'>iter</span>().<span class='ident'>cmp</span>(<span class='ident'>other</span>.<span class='ident'>iter</span>())
     }
 }
@@ -2178,8 +2179,8 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='ident'>FromIterator</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>V</span>)<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>from_iter</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>IntoIterator</span><span class='op'>&lt;</span><span class='ident'>Item</span> <span class='op'>=</span> (<span class='ident'>usize</span>, <span class='ident'>V</span>)<span class='op'>&gt;&gt;</span>(<span class='ident'>iter</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='ident'>Self</span>::<span class='ident'>new</span>();
+    <span class='kw'>fn</span> <span class='ident'>from_iter</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>IntoIterator</span><span class='op'>&lt;</span><span class='ident'>Item</span> <span class='op'>=</span> (<span class='ident'>usize</span>, <span class='ident'>V</span>)<span class='op'>&gt;&gt;</span>(<span class='ident'>iter</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='self'>Self</span>::<span class='ident'>new</span>();
         <span class='ident'>map</span>.<span class='ident'>extend</span>(<span class='ident'>iter</span>);
         <span class='ident'>map</span>
     }
@@ -2484,8 +2485,8 @@
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
 <span class='kw'>mod</span> <span class='ident'>test</span> {
-    <span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>VecMap</span>;
-    <span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>Entry</span>::{<span class='ident'>Occupied</span>, <span class='ident'>Vacant</span>};
+    <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>VecMap</span>;
+    <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>Entry</span>::{<span class='ident'>Occupied</span>, <span class='ident'>Vacant</span>};
     <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>hash</span>::{<span class='ident'>Hash</span>, <span class='ident'>Hasher</span>, <span class='ident'>SipHasher</span>};
 
     <span class='attribute'>#[<span class='ident'>test</span>]</span>
@@ -2682,10 +2683,10 @@
     <span class='kw'>fn</span> <span class='ident'>test_move_iter</span>() {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>m</span>: <span class='ident'>VecMap</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span> <span class='op'>=</span> <span class='ident'>VecMap</span>::<span class='ident'>new</span>();
         <span class='ident'>m</span>.<span class='ident'>insert</span>(<span class='number'>1</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='number'>2</span>));
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>called</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>called</span> <span class='op'>=</span> <span class='bool-val'>false</span>;
         <span class='kw'>for</span> (<span class='ident'>k</span>, <span class='ident'>v</span>) <span class='kw'>in</span> <span class='ident'>m</span> {
             <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>called</span>);
-            <span class='ident'>called</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+            <span class='ident'>called</span> <span class='op'>=</span> <span class='bool-val'>true</span>;
             <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>k</span>, <span class='number'>1</span>);
             <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>v</span>, <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='number'>2</span>));
         }
@@ -3026,6 +3027,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -3046,7 +3049,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -3055,13 +3058,13 @@
     
 
     <script>
-        window.rootPath = "../../";
+        window.rootPath = "../../../";
         window.currentCrate = "vec_map";
         window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
-    <script src="../../main.js"></script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
     
-    <script defer src="../../search-index.js"></script>
+    <script defer src="../../../search-index.js"></script>
 </body>
 </html>
