@@ -949,7 +949,7 @@ impl<V> DoubleEndedIterator for IntoIter<V> {
 fn assert_properties() {
     fn vec_map_covariant<'a, T>(map: VecMap<&'static T>) -> VecMap<&'a T> { map }
 
-    fn into_iter_covariant<'a, T>(iter: IntoIter<&'static T>) -> IntoIter<&'a T> { iter }
+    fn into_iter_covariant<T>(iter: IntoIter<T>) -> IntoIter<T> { iter }
 
     fn iter_covariant<'i, 'a, T>(iter: Iter<'i, &'static T>) -> Iter<'i, &'a T> { iter }
 
