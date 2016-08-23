@@ -40,5 +40,5 @@ readme = "README.md"
 eders = ["serde", "serde_macros"]
 
 [dependencies]
-serde = { version = "0.7", optional = true }
-serde_macros = { version = "0.7", optional = true }
+serde = { version = "0.8", optional = true }
+serde_macros = { version = "0.8", optional = true }
