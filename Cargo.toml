@@ -37,8 +37,8 @@ keywords = ["data-structures", "collections", "vecmap", "vec_map", "contain-rs"]
 readme = "README.md"
 
 [features]
-eders = ["serde", "serde_macros"]
+eders = ["serde", "serde_derive"]
 
 [dependencies]
-serde = { version = "0.7", optional = true }
-serde_macros = { version = "0.7", optional = true }
+serde = { version = "0.9", optional = true }
+serde_derive = { version = "0.9", optional = true }
