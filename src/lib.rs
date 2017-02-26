@@ -14,10 +14,11 @@
 //! are O(highest integer key).
 
 // optional serde support
-#![cfg_attr(feature = "eders", feature(const_fn, custom_derive, plugin))]
-#![cfg_attr(feature = "eders", plugin(serde_macros))]
 #[cfg(feature = "eders")]
 extern crate serde;
+#[cfg(feature = "eders")]
+#[macro_use]
+extern crate serde_derive;
 
 use self::Entry::*;
 
