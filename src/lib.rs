@@ -63,7 +63,6 @@ use std::vec;
 /// months.clear();
 /// assert!(months.is_empty());
 /// ```
-#[derive(Clone)]
 #[cfg_attr(feature = "eders", derive(Serialize, Deserialize))]
 pub struct VecMap<V> {
     v: Vec<Option<V>>,
@@ -623,6 +622,18 @@ impl<'a, V> OccupiedEntry<'a, V> {
     pub fn remove(self) -> V {
         let index = self.index;
         self.map.remove(index).unwrap()
+    }
+}
+
+impl<V: Clone> Clone for VecMap<V> {
+    #[inline]
+    fn clone(&self) -> Self {
+        VecMap { v: self.v.clone() }
+    }
+
+    #[inline]
+    fn clone_from(&mut self, source: &Self) {
+        self.v.clone_from(&source.v);
     }
 }
 
