@@ -1485,7 +1485,7 @@ mod test {
     #[cfg(feature = "eders")]
     fn test_serde() {
         use serde::{Serialize, Deserialize};
-        fn impls_serde_traits<S: Serialize + Deserialize>() {}
+        fn impls_serde_traits<'de, S: Serialize + Deserialize<'de>>() {}
 
         impls_serde_traits::<VecMap<u32>>();
     }
