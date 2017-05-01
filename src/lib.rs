@@ -65,6 +65,11 @@ use std::vec;
 /// ```
 #[cfg_attr(feature = "eders", derive(Serialize, Deserialize))]
 pub struct VecMap<V> {
+    // If the `VecMap` contains `(k,val)`, then `v[k] == Some(val)`.
+    // If the map contains no element at key `k`, then either `v[k] == None`
+    // or `v.len() <= k`.
+    // Additionally, if `v.len() > 0`, then `v[v.len()-1] == Some(val)` for
+    // some value `val`.
     v: Vec<Option<V>>,
 }
 
@@ -257,6 +262,28 @@ impl<V> VecMap<V> {
             iter: self.v.iter_mut()
         }
     }
+    
+    /// Returns the key of the largest item plus one. This is a fast, constant
+    /// time, operation.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use vec_map::VecMap;
+    /// 
+    /// let mut map = VecMap::new();
+    /// map.insert(7, "seven");
+    /// map.insert(3, "three");
+    /// assert_eq!(map.upper_bound(), 8);
+    /// map.remove(7);
+    /// assert_eq!(map.upper_bound(), 4);
+    /// map.remove(3);
+    /// assert_eq!(map.upper_bound(), 0);
+    /// ```
+    pub fn upper_bound(&self) -> usize {
+        // We require that v.last() is not None except when v is empty
+        self.v.len()
+    }
 
     /// Moves all elements from `other` into the map while overwriting existing keys.
     ///
@@ -339,6 +366,13 @@ impl<V> VecMap<V> {
 
         // Move elements beginning with `start_index` from `self` into `other`
         other.v.extend(self.v[start_index..].iter_mut().map(|el| el.take()));
+        
+        // Reduce the length of self.v (though not the capacity) as required
+        let mut i = start_index;
+        while i > 0 && self.v[i - 1].is_none() {
+            i -= 1;
+        }
+        self.v.truncate(i);
 
         other
     }
@@ -480,6 +514,51 @@ impl<V> VecMap<V> {
             None
         }
     }
+    
+    /// Returns a reference to the last value of the map, or `None` if the map
+    /// is empty.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use vec_map::VecMap;
+    /// 
+    /// let mut map = VecMap::new();
+    /// assert_eq!(map.last(), None);
+    /// map.insert(5, "five");
+    /// map.insert(10, "ten");
+    /// assert_eq!(map.last(), Some(&"ten"));
+    /// ```
+    pub fn last(&self) -> Option<&V> {
+        self.v.last().and_then(|x| match *x {
+            Some(ref value) => Some(value),
+            None => None
+        })
+    }
+    
+    /// Returns a mutable reference to the last value of the map, or `None` if
+    /// the map is empty.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use vec_map::VecMap;
+    /// 
+    /// let mut map = VecMap::new();
+    /// assert_eq!(map.last_mut(), None);
+    /// map.insert(5, "five");
+    /// map.insert(10, "ten");
+    /// if let Some(x) = map.last_mut() {
+    ///     *x = "five times two";
+    /// }
+    /// assert_eq!(map.get(10), Some(&"five times two"));
+    /// ```
+    pub fn last_mut(&mut self) -> Option<&mut V> {
+        self.v.last_mut().and_then(|x| match *x {
+            Some(ref mut value) => Some(value),
+            None => None
+        })
+    }
 
     /// Inserts a key-value pair into the map. If the key already had a value
     /// present in the map, that value is returned. Otherwise, `None` is returned.
@@ -522,8 +601,16 @@ impl<V> VecMap<V> {
         if key >= self.v.len() {
             return None;
         }
-        let result = &mut self.v[key];
-        result.take()
+        let result = self.v[key].take();
+        
+        // Reduce the length of self.v (though not the capacity) as required
+        let mut i = self.v.len();
+        while i > 0 && self.v[i - 1].is_none() {
+            i -= 1;
+        }
+        self.v.truncate(i);
+        
+        result
     }
 
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
@@ -1229,9 +1316,12 @@ mod test {
         a.insert(4, "d");
 
         let b = a.split_off(3);
-
+        
         assert_eq!(a.len(), 2);
         assert_eq!(b.len(), 2);
+        
+        assert_eq!(a.upper_bound(), 3);
+        assert_eq!(b.upper_bound(), 5);
 
         assert_eq!(a[1], "a");
         assert_eq!(a[2], "b");
@@ -1250,6 +1340,8 @@ mod test {
 
         assert_eq!(a.len(), 0);
         assert_eq!(b.len(), 4);
+        assert_eq!(a.upper_bound(), 0);
+        assert_eq!(b.upper_bound(), 5);
         assert_eq!(b[1], "a");
         assert_eq!(b[2], "b");
         assert_eq!(b[3], "c");
@@ -1266,6 +1358,8 @@ mod test {
 
         assert_eq!(a.len(), 4);
         assert_eq!(b.len(), 0);
+        assert_eq!(a.upper_bound(), 5);
+        assert_eq!(b.upper_bound(), 0);
         assert_eq!(a[1], "a");
         assert_eq!(a[2], "b");
         assert_eq!(a[3], "c");
