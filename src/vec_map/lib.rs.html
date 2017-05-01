@@ -3023,7 +3023,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;eders&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_serde</span>() {
         <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>};
-        <span class="kw">fn</span> <span class="ident">impls_serde_traits</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&gt;</span>() {}
+        <span class="kw">fn</span> <span class="ident">impls_serde_traits</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">S</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;&gt;</span>() {}
 
         <span class="ident">impls_serde_traits</span>::<span class="op">&lt;</span><span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;&gt;</span>();
     }
