@@ -583,6 +583,34 @@ impl<V> VecMap<V> {
             })
         }
     }
+
+    /// Retains only the elements specified by the predicate.
+    ///
+    /// In other words, remove all pairs `(k, v)` such that `f(&k, &mut v)` returns `false`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use vec_map::VecMap;
+    ///
+    /// let mut map: VecMap<usize> = (0..8).map(|x|(x, x*10)).collect();
+    /// map.retain(|k, _| k % 2 == 0);
+    /// assert_eq!(map.len(), 4);
+    /// ```
+    pub fn retain<F>(&mut self, mut f: F)
+        where F: FnMut(usize, &mut V) -> bool
+    {
+        for (i, e) in self.v.iter_mut().enumerate() {
+            let remove = match *e {
+                Some(ref mut value) => !f(i, value),
+                None => false,
+            };
+            if remove {
+                *e = None;
+                self.n -= 1;
+            }
+        }
+    }
 }
 
 impl<'a, V> Entry<'a, V> {
@@ -1541,5 +1569,27 @@ mod test {
         fn impls_serde_traits<'de, S: Serialize + Deserialize<'de>>() {}
 
         impls_serde_traits::<VecMap<u32>>();
+    }
+
+    #[test]
+    fn test_retain() {
+        let mut map = VecMap::new();
+        map.insert(1, "one");
+        map.insert(2, "two");
+        map.insert(3, "three");
+        map.retain(|k, v| match k {
+            1 => false,
+            2 => {
+                *v = "two changed";
+                true
+            },
+            3 => false,
+            _ => panic!(),
+        });
+
+        assert_eq!(map.len(), 1);
+        assert_eq!(map.get(1), None);
+        assert_eq!(map[2], "two changed");
+        assert_eq!(map.get(3), None);
     }
 }
