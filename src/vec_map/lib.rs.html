@@ -1588,6 +1588,56 @@
 <span id="1543">1543</span>
 <span id="1544">1544</span>
 <span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
 </pre><pre class="rust ">
 <span class="comment">// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT</span>
 <span class="comment">// file at the top-level directory of this distribution and at</span>
@@ -2172,6 +2222,34 @@
                 <span class="ident">map</span>: <span class="self">self</span>,
                 <span class="ident">index</span>: <span class="ident">key</span>,
             })
+        }
+    }
+
+    <span class="doccomment">/// Retains only the elements specified by the predicate.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In other words, remove all pairs `(k, v)` such that `f(&amp;k, &amp;mut v)` returns `false`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use vec_map::VecMap;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut map: VecMap&lt;usize&gt; = (0..8).map(|x|(x, x*10)).collect();</span>
+    <span class="doccomment">/// map.retain(|k, _| k % 2 == 0);</span>
+    <span class="doccomment">/// assert_eq!(map.len(), 4);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">retain</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>)
+        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>
+    {
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">e</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">v</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="ident">remove</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">e</span> {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">value</span>) <span class="op">=&gt;</span> <span class="op">!</span><span class="ident">f</span>(<span class="ident">i</span>, <span class="ident">value</span>),
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            };
+            <span class="kw">if</span> <span class="ident">remove</span> {
+                <span class="kw-2">*</span><span class="ident">e</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="self">self</span>.<span class="ident">n</span> <span class="op">-=</span> <span class="number">1</span>;
+            }
         }
     }
 }
@@ -3133,6 +3211,28 @@
 
         <span class="ident">impls_serde_traits</span>::<span class="op">&lt;</span><span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;&gt;</span>();
     }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_retain</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">VecMap</span>::<span class="ident">new</span>();
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="string">&quot;one&quot;</span>);
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="number">2</span>, <span class="string">&quot;two&quot;</span>);
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="number">3</span>, <span class="string">&quot;three&quot;</span>);
+        <span class="ident">map</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">k</span>, <span class="ident">v</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">k</span> {
+            <span class="number">1</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="number">2</span> <span class="op">=&gt;</span> {
+                <span class="kw-2">*</span><span class="ident">v</span> <span class="op">=</span> <span class="string">&quot;two changed&quot;</span>;
+                <span class="bool-val">true</span>
+            },
+            <span class="number">3</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            _ <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(),
+        });
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>[<span class="number">2</span>], <span class="string">&quot;two changed&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">None</span>);
+    }
 }
 </pre>
 </section>
@@ -3192,7 +3292,6 @@
         window.rootPath = "../../";
         window.currentCrate = "vec_map";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 </body>
