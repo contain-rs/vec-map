@@ -204,6 +204,13 @@ impl<V> VecMap<V> {
     /// assert_eq!(map.capacity(), 0);
     /// ```
     pub fn shrink_to_fit(&mut self) {
+        // strip off trailing `None`s
+        if let Some(idx) = self.v.iter().rposition(Option::is_some) {
+            self.v.truncate(idx + 1);
+        } else {
+            self.v.clear();
+        }
+
         self.v.shrink_to_fit()
     }
 
