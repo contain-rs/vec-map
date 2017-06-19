@@ -191,6 +191,29 @@ impl<V> VecMap<V> {
         }
     }
 
+    /// Trims the `VecMap` of any excess capacity.
+    ///
+    /// The collection may reserve more space to avoid frequent reallocations.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use vec_map::VecMap;
+    /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
+    /// map.shrink_to_fit();
+    /// assert_eq!(map.capacity(), 0);
+    /// ```
+    pub fn shrink_to_fit(&mut self) {
+        // strip off trailing `None`s
+        if let Some(idx) = self.v.iter().rposition(Option::is_some) {
+            self.v.truncate(idx + 1);
+        } else {
+            self.v.clear();
+        }
+
+        self.v.shrink_to_fit()
+    }
+
     /// Returns an iterator visiting all keys in ascending order of the keys.
     /// The iterator's element type is `usize`.
     pub fn keys(&self) -> Keys<V> {
@@ -201,6 +224,12 @@ impl<V> VecMap<V> {
     /// The iterator's element type is `&'r V`.
     pub fn values(&self) -> Values<V> {
         Values { iter: self.iter() }
+    }
+
+    /// Returns an iterator visiting all values in ascending order of the keys.
+    /// The iterator's element type is `&'r mut V`.
+    pub fn values_mut(&mut self) -> ValuesMut<V> {
+        ValuesMut { iter_mut: self.iter_mut() }
     }
 
     /// Returns an iterator visiting all key-value pairs in ascending order of the keys.
@@ -950,6 +979,11 @@ impl<'a, V> Clone for Values<'a, V> {
     }
 }
 
+/// An iterator over the values of a map.
+pub struct ValuesMut<'a, V: 'a> {
+    iter_mut: IterMut<'a, V>,
+}
+
 /// A consuming iterator over the key-value pairs of a map.
 pub struct IntoIter<V> {
     n: usize,
@@ -1001,6 +1035,19 @@ impl<'a, V> ExactSizeIterator for Values<'a, V> {}
 
 impl<'a, V> DoubleEndedIterator for Values<'a, V> {
     fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back().map(|e| e.1) }
+}
+
+impl<'a, V> Iterator for ValuesMut<'a, V> {
+    type Item = &'a mut V;
+
+    fn next(&mut self) -> Option<(&'a mut V)> { self.iter_mut.next().map(|e| e.1) }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter_mut.size_hint() }
+}
+
+impl<'a, V> ExactSizeIterator for ValuesMut<'a, V> {}
+
+impl<'a, V> DoubleEndedIterator for ValuesMut<'a, V> {
+    fn next_back(&mut self) -> Option<&'a mut V> { self.iter_mut.next_back().map(|e| e.1) }
 }
 
 impl<V> Iterator for IntoIter<V> {
