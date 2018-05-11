@@ -1,4 +1,4 @@
-// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2012-2018 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -475,10 +475,7 @@ impl<V> VecMap<V> {
     /// ```
     pub fn get(&self, key: usize) -> Option<&V> {
         if key < self.v.len() {
-            match self.v[key] {
-              Some(ref value) => Some(value),
-              None => None
-            }
+            self.v[key].as_ref()
         } else {
             None
         }
@@ -517,10 +514,7 @@ impl<V> VecMap<V> {
     /// ```
     pub fn get_mut(&mut self, key: usize) -> Option<&mut V> {
         if key < self.v.len() {
-            match *(&mut self.v[key]) {
-              Some(ref mut value) => Some(value),
-              None => None
-            }
+            self.v[key].as_mut()
         } else {
             None
         }
@@ -799,7 +793,7 @@ impl<'a, T> IntoIterator for &'a mut VecMap<T> {
     type Item = (usize, &'a mut T);
     type IntoIter = IterMut<'a, T>;
 
-    fn into_iter(mut self) -> IterMut<'a, T> {
+    fn into_iter(self) -> IterMut<'a, T> {
         self.iter_mut()
     }
 }
@@ -858,19 +852,13 @@ macro_rules! iterator {
             #[inline]
             fn next(&mut self) -> Option<$elem> {
                 while self.front < self.back {
-                    match self.iter.next() {
-                        Some(elem) => {
-                            match elem$(. $getter ())+ {
-                                Some(x) => {
-                                    let index = self.front;
-                                    self.front += 1;
-                                    self.yielded += 1;
-                                    return Some((index, x));
-                                },
-                                None => {},
-                            }
+                    if let Some(elem) = self.iter.next() {
+                        if let Some(x) = elem$(. $getter ())+ {
+                            let index = self.front;
+                            self.front += 1;
+                            self.yielded += 1;
+                            return Some((index, x));
                         }
-                        _ => ()
                     }
                     self.front += 1;
                 }
@@ -891,17 +879,11 @@ macro_rules! double_ended_iterator {
             #[inline]
             fn next_back(&mut self) -> Option<$elem> {
                 while self.front < self.back {
-                    match self.iter.next_back() {
-                        Some(elem) => {
-                            match elem$(. $getter ())+ {
-                                Some(x) => {
-                                    self.back -= 1;
-                                    return Some((self.back, x));
-                                },
-                                None => {},
-                            }
+                    if let Some(elem) = self.iter.next_back() {
+                        if let Some(x) = elem$(. $getter ())+ {
+                            self.back -= 1;
+                            return Some((self.back, x));
                         }
-                        _ => ()
                     }
                     self.back -= 1;
                 }
@@ -1102,7 +1084,8 @@ fn assert_properties() {
 mod test {
     use super::VecMap;
     use super::Entry::{Occupied, Vacant};
-    use std::hash::{Hash, Hasher, SipHasher};
+    use std::hash::{Hash, Hasher};
+    use std::collections::hash_map::DefaultHasher;
 
     #[test]
     fn test_get_mut() {
@@ -1481,7 +1464,7 @@ mod test {
     #[test]
     fn test_hash() {
         fn hash<T: Hash>(t: &T) -> u64 {
-            let mut s = SipHasher::new();
+            let mut s = DefaultHasher::new();
             t.hash(&mut s);
             s.finish()
         }
