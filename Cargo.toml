@@ -37,8 +37,8 @@ keywords = ["data-structures", "collections", "vecmap", "vec_map", "contain-rs"]
 readme = "README.md"
 
 [features]
-eders = ["serde", "serde_derive"]
+# This feature is kept for backwards compatibility. Use feature "serde" instead.
+eders = [ "serde" ]
 
 [dependencies]
-serde = { version = "1.0", optional = true }
-serde_derive = { version = "1.0", optional = true }
+serde = { version = "1.0", features = [ "derive" ], optional = true }
