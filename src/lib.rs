@@ -14,11 +14,9 @@
 //! are O(highest integer key).
 
 // optional serde support
-#[cfg(feature = "eders")]
-extern crate serde;
-#[cfg(feature = "eders")]
+#[cfg(feature = "serde")]
 #[macro_use]
-extern crate serde_derive;
+extern crate serde;
 
 use self::Entry::*;
 
@@ -63,7 +61,7 @@ use std::vec;
 /// months.clear();
 /// assert!(months.is_empty());
 /// ```
-#[cfg_attr(feature = "eders", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VecMap<V> {
     n: usize,
     v: Vec<Option<V>>,
@@ -1610,7 +1608,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "eders")]
+    #[cfg(feature = "serde")]
     fn test_serde() {
         use serde::{Serialize, Deserialize};
         fn impls_serde_traits<'de, S: Serialize + Deserialize<'de>>() {}
