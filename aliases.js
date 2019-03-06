@@ -1,2 +1,2 @@
 var ALIASES = {};
-ALIASES['vec_map'] = {};
+ALIASES["vec_map"] = {};
