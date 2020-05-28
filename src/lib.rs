@@ -9,6 +9,7 @@
 // except according to those terms.
 
 #![deny(missing_docs)]
+#![warn(rust_2018_idioms)]
 
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
