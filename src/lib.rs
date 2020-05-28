@@ -69,7 +69,7 @@ pub struct VecMap<V> {
 }
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
-pub enum Entry<'a, V: 'a> {
+pub enum Entry<'a, V> {
     /// A vacant Entry
     Vacant(VacantEntry<'a, V>),
 
@@ -78,13 +78,13 @@ pub enum Entry<'a, V: 'a> {
 }
 
 /// A vacant Entry.
-pub struct VacantEntry<'a, V: 'a> {
+pub struct VacantEntry<'a, V> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 /// An occupied Entry.
-pub struct OccupiedEntry<'a, V: 'a> {
+pub struct OccupiedEntry<'a, V> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
@@ -215,19 +215,19 @@ impl<V> VecMap<V> {
 
     /// Returns an iterator visiting all keys in ascending order of the keys.
     /// The iterator's element type is `usize`.
-    pub fn keys(&self) -> Keys<V> {
+    pub fn keys(&self) -> Keys<'_, V> {
         Keys { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all values in ascending order of the keys.
     /// The iterator's element type is `&'r V`.
-    pub fn values(&self) -> Values<V> {
+    pub fn values(&self) -> Values<'_, V> {
         Values { iter: self.iter() }
     }
 
     /// Returns an iterator visiting all values in ascending order of the keys.
     /// The iterator's element type is `&'r mut V`.
-    pub fn values_mut(&mut self) -> ValuesMut<V> {
+    pub fn values_mut(&mut self) -> ValuesMut<'_, V> {
         ValuesMut { iter_mut: self.iter_mut() }
     }
 
@@ -249,7 +249,7 @@ impl<V> VecMap<V> {
     ///     println!("{}: {}", key, value);
     /// }
     /// ```
-    pub fn iter(&self) -> Iter<V> {
+    pub fn iter(&self) -> Iter<'_, V> {
         Iter {
             front: 0,
             back: self.v.len(),
@@ -281,7 +281,7 @@ impl<V> VecMap<V> {
     ///     assert_eq!(value, &"x");
     /// }
     /// ```
-    pub fn iter_mut(&mut self) -> IterMut<V> {
+    pub fn iter_mut(&mut self) -> IterMut<'_, V> {
         IterMut {
             front: 0,
             back: self.v.len(),
@@ -404,7 +404,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    pub fn drain(&mut self) -> Drain<V> {
+    pub fn drain(&mut self) -> Drain<'_, V> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
         }
@@ -588,7 +588,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(count[1], 3);
     /// ```
-    pub fn entry(&mut self, key: usize) -> Entry<V> {
+    pub fn entry(&mut self, key: usize) -> Entry<'_, V> {
         // FIXME(Gankro): this is basically the dumbest implementation of
         // entry possible, because weird non-lexical borrows issues make it
         // completely insane to do any other way. That said, Entry is a border-line
@@ -735,7 +735,7 @@ impl<V: Ord> Ord for VecMap<V> {
 }
 
 impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_map().entries(self).finish()
     }
 }
@@ -893,7 +893,7 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
-pub struct Iter<'a, V: 'a> {
+pub struct Iter<'a, V> {
     front: usize,
     back: usize,
     n: usize,
@@ -920,7 +920,7 @@ double_ended_iterator! { impl Iter -> (usize, &'a V), as_ref }
 
 /// An iterator over the key-value pairs of a map, with the
 /// values being mutable.
-pub struct IterMut<'a, V: 'a> {
+pub struct IterMut<'a, V> {
     front: usize,
     back: usize,
     n: usize,
@@ -933,7 +933,7 @@ impl<'a, V> ExactSizeIterator for IterMut<'a, V> {}
 double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
-pub struct Keys<'a, V: 'a> {
+pub struct Keys<'a, V> {
     iter: Iter<'a, V>,
 }
 
@@ -947,7 +947,7 @@ impl<'a, V> Clone for Keys<'a, V> {
 }
 
 /// An iterator over the values of a map.
-pub struct Values<'a, V: 'a> {
+pub struct Values<'a, V> {
     iter: Iter<'a, V>,
 }
 
@@ -961,7 +961,7 @@ impl<'a, V> Clone for Values<'a, V> {
 }
 
 /// An iterator over the values of a map.
-pub struct ValuesMut<'a, V: 'a> {
+pub struct ValuesMut<'a, V> {
     iter_mut: IterMut<'a, V>,
 }
 
@@ -973,7 +973,7 @@ pub struct IntoIter<V> {
 }
 
 /// A draining iterator over the key-value pairs of a map.
-pub struct Drain<'a, V: 'a> {
+pub struct Drain<'a, V> {
     iter: FilterMap<
     Enumerate<vec::Drain<'a, Option<V>>>,
     fn((usize, Option<V>)) -> Option<(usize, V)>>
