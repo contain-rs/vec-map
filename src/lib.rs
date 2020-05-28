@@ -653,6 +653,15 @@ impl<'a, V> Entry<'a, V> {
             Vacant(entry) => entry.insert(default()),
         }
     }
+
+    /// Ensures a value is in the entry by inserting the default value if empty,
+    /// and returns a mutable reference to the value in the entry.
+    pub fn or_default(self) -> &'a mut V where V: Default {
+        match self {
+            Occupied(entry) => entry.into_mut(),
+            Vacant(entry) => entry.insert(Default::default()),
+        }
+    }
 }
 
 impl<'a, V> VacantEntry<'a, V> {
