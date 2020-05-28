@@ -654,6 +654,15 @@ impl<'a, V> Entry<'a, V> {
             Vacant(entry) => entry.insert(default()),
         }
     }
+
+    /// Ensures a value is in the entry by inserting the default value if empty,
+    /// and returns a mutable reference to the value in the entry.
+    pub fn or_default(self) -> &'a mut V where V: Default {
+        match self {
+            Occupied(entry) => entry.into_mut(),
+            Vacant(entry) => entry.insert(Default::default()),
+        }
+    }
 }
 
 impl<'a, V> VacantEntry<'a, V> {
@@ -1573,6 +1582,21 @@ mod test {
 
         assert_eq!(map.get(10).unwrap(), &1000);
         assert_eq!(map.len(), 6);
+    }
+
+    #[test]
+    fn test_entry_or_default() {
+        #[derive(Debug, PartialEq)]
+        struct Foo(i32);
+        impl Default for Foo {
+            fn default() -> Self {
+                Self(123)
+            }
+        }
+        let mut map: VecMap<Foo> = VecMap::new();
+        assert_eq!(*map.entry(1).or_default(), Foo(123));
+        map.insert(1, Foo(456));
+        assert_eq!(*map.entry(1).or_default(), Foo(456));
     }
 
     #[test]
