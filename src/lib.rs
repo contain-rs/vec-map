@@ -1007,20 +1007,20 @@ impl<'a, V> DoubleEndedIterator for Keys<'a, V> {
 impl<'a, V> Iterator for Values<'a, V> {
     type Item = &'a V;
 
-    fn next(&mut self) -> Option<(&'a V)> { self.iter.next().map(|e| e.1) }
+    fn next(&mut self) -> Option<&'a V> { self.iter.next().map(|e| e.1) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl<'a, V> ExactSizeIterator for Values<'a, V> {}
 
 impl<'a, V> DoubleEndedIterator for Values<'a, V> {
-    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back().map(|e| e.1) }
+    fn next_back(&mut self) -> Option<&'a V> { self.iter.next_back().map(|e| e.1) }
 }
 
 impl<'a, V> Iterator for ValuesMut<'a, V> {
     type Item = &'a mut V;
 
-    fn next(&mut self) -> Option<(&'a mut V)> { self.iter_mut.next().map(|e| e.1) }
+    fn next(&mut self) -> Option<&'a mut V> { self.iter_mut.next().map(|e| e.1) }
     fn size_hint(&self) -> (usize, Option<usize>) { self.iter_mut.size_hint() }
 }
 
