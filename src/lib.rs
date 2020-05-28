@@ -1584,6 +1584,21 @@ mod test {
     }
 
     #[test]
+    fn test_entry_or_default() {
+        #[derive(Debug, PartialEq)]
+        struct Foo(i32);
+        impl Default for Foo {
+            fn default() -> Self {
+                Self(123)
+            }
+        }
+        let mut map: VecMap<Foo> = VecMap::new();
+        assert_eq!(*map.entry(1).or_default(), Foo(123));
+        map.insert(1, Foo(456));
+        assert_eq!(*map.entry(1).or_default(), Foo(456));
+    }
+
+    #[test]
     fn test_extend_ref() {
         let mut a = VecMap::new();
         a.insert(1, "one");
