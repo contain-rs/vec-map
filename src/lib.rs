@@ -522,6 +522,9 @@ impl<V> VecMap<V> {
     /// Inserts a key-value pair into the map. If the key already had a value
     /// present in the map, that value is returned. Otherwise, `None` is returned.
     ///
+    /// *WARNING*: You should only use trusted values as keys in VecMap. Otherwise, a
+    /// denial-of-service vulnerability may occur that deplets memory with a large key value.
+    ///
     /// # Examples
     ///
     /// ```
