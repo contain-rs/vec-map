@@ -10,6 +10,7 @@
 
 #![deny(missing_docs)]
 #![warn(rust_2018_idioms)]
+#![allow(clippy::type_complexity)]
 
 //! A simple map based on a vector for small integer keys. Space requirements
 //! are O(highest integer key).
@@ -1475,7 +1476,7 @@ mod test {
         assert!(a != b);
         assert!(a.insert(5, 19).is_none());
         assert!(a != b);
-        assert!(!b.insert(0, 5).is_none());
+        assert!(b.insert(0, 5).is_some());
         assert!(a != b);
         assert!(b.insert(5, 19).is_none());
         assert!(a == b);
@@ -1490,17 +1491,17 @@ mod test {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
 
-        assert!(!(a < b) && !(b < a));
+        assert!(a >= b && b >= a);
         assert!(b.insert(2, 5).is_none());
         assert!(a < b);
         assert!(a.insert(2, 7).is_none());
-        assert!(!(a < b) && b < a);
+        assert!(a >= b && b < a);
         assert!(b.insert(1, 0).is_none());
         assert!(b < a);
         assert!(a.insert(0, 6).is_none());
         assert!(a < b);
         assert!(a.insert(6, 2).is_none());
-        assert!(a < b && !(b < a));
+        assert!(a < b && b >= a);
     }
 
     #[test]
@@ -1508,7 +1509,7 @@ mod test {
         let mut a = VecMap::new();
         let mut b = VecMap::new();
 
-        assert!(a <= b && a >= b);
+        assert!(a == b);
         assert!(a.insert(1, 1).is_none());
         assert!(a > b && a >= b);
         assert!(b < a && b <= a);
