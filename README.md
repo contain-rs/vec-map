@@ -1,3 +1,5 @@
+![Rust CI](https://github.com/contain-rs/vec-map/workflows/Rust/badge.svg?branch=master) [![crates.io](https://img.shields.io/crates/v/vec-map.svg)](https://crates.io/crates/vec-map) [![](https://docs.rs/vec-map/badge.svg)](https://docs.rs/vec-map)
+
 **WARNING: THIS PROJECT IS IN MAINTENANCE MODE, DUE TO INSUFFICIENT MAINTAINER RESOURCES**
 
 It works fine, but will generally no longer be improved.
