@@ -562,6 +562,13 @@ impl<V> VecMap<V> {
         was
     }
 
+    /// Inserts a value in the map and returns a newly created key.
+    pub(crate) fn push(&mut self, value: V) -> usize {
+        let ret = self.v.len();
+        self.v.push(Some(value));
+        ret
+    }
+
     /// Removes a key from the map, returning the value at the key if the key
     /// was previously in the map.
     ///
@@ -1678,5 +1685,13 @@ mod test {
         assert_eq!(map.get(1), None);
         assert_eq!(map[2], "two changed");
         assert_eq!(map.get(3), None);
+    }
+
+    #[test]
+    fn test_push() {
+        let mut map = VecMap::new();
+        map.insert(3, "three");
+        let k = map.push("four");
+        assert_eq!(k, 4);
     }
 }
