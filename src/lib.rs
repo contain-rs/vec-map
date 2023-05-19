@@ -912,25 +912,13 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
+#[derive(Clone)]
 pub struct Iter<'a, V> {
     front: usize,
     back: usize,
     n: usize,
     yielded: usize,
     iter: slice::Iter<'a, Option<V>>,
-}
-
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Iter<'a, V> {
-    fn clone(&self) -> Iter<'a, V> {
-        Iter {
-            front: self.front,
-            back: self.back,
-            n: self.n,
-            yielded: self.yielded,
-            iter: self.iter.clone(),
-        }
-    }
 }
 
 iterator! { impl Iter -> (usize, &'a V), as_ref }
@@ -952,31 +940,15 @@ impl<'a, V> ExactSizeIterator for IterMut<'a, V> {}
 double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
+#[derive(Clone)]
 pub struct Keys<'a, V> {
     iter: Iter<'a, V>,
 }
 
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Keys<'a, V> {
-    fn clone(&self) -> Keys<'a, V> {
-        Keys {
-            iter: self.iter.clone(),
-        }
-    }
-}
-
 /// An iterator over the values of a map.
+#[derive(Clone)]
 pub struct Values<'a, V> {
     iter: Iter<'a, V>,
-}
-
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Values<'a, V> {
-    fn clone(&self) -> Values<'a, V> {
-        Values {
-            iter: self.iter.clone(),
-        }
-    }
 }
 
 /// An iterator over the values of a map.
