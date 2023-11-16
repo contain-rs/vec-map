@@ -1,4 +1,8 @@
-![Rust CI](https://github.com/contain-rs/vec-map/workflows/Rust/badge.svg?branch=master) [![crates.io](https://img.shields.io/crates/v/vec-map.svg)](https://crates.io/crates/vec-map) [![](https://docs.rs/vec-map/badge.svg)](https://docs.rs/vec-map)
+
+[![Rust](https://github.com/contain-rs/vec-map/actions/workflows/rust.yml/badge.svg)](https://github.com/contain-rs/vec-map/actions/workflows/rust.yml)
+[![crates.io](https://img.shields.io/crates/v/vec_map.svg)](https://crates.io/crates/vec_map)
+[![](https://docs.rs/vec_map/badge.svg)](https://docs.rs/vec_map)
+
 
 **WARNING: THIS PROJECT IS IN MAINTENANCE MODE, DUE TO INSUFFICIENT MAINTAINER RESOURCES**
 
@@ -14,4 +18,4 @@ We are currently only accepting changes which:
 
 A simple map based on a vector for small integer keys.
 
-Documentation is available at https://contain-rs.github.io/vec-map/vec_map.
+Documentation is available at <https://docs.rs/vec_map>.
