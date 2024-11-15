@@ -22,6 +22,10 @@ extern crate serde;
 
 use self::Entry::*;
 
+use allocator_api2::{
+    alloc::{Allocator, Global},
+    vec::{self, Vec},
+};
 use std::cmp::{max, Ordering};
 use std::fmt;
 use std::hash::{Hash, Hasher};
@@ -29,7 +33,6 @@ use std::iter::{Enumerate, FilterMap, FromIterator};
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 use std::slice;
-use std::vec;
 
 /// A map optimized for small integer keys.
 ///
@@ -63,30 +66,37 @@ use std::vec;
 /// months.clear();
 /// assert!(months.is_empty());
 /// ```
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct VecMap<V> {
+#[cfg_attr(
+    feature = "serde",
+    derive(Serialize, Deserialize),
+    serde(bound(
+        deserialize = "V: serde::Deserialize<'de>, A: Default",
+        serialize = "V: serde::Serialize"
+    ))
+)]
+pub struct VecMap<V, A: Allocator = Global> {
     n: usize,
-    v: Vec<Option<V>>,
+    v: Vec<Option<V>, A>,
 }
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
-pub enum Entry<'a, V> {
+pub enum Entry<'a, V, A: Allocator = Global> {
     /// A vacant Entry
-    Vacant(VacantEntry<'a, V>),
+    Vacant(VacantEntry<'a, V, A>),
 
     /// An occupied Entry
-    Occupied(OccupiedEntry<'a, V>),
+    Occupied(OccupiedEntry<'a, V, A>),
 }
 
 /// A vacant Entry.
-pub struct VacantEntry<'a, V> {
-    map: &'a mut VecMap<V>,
+pub struct VacantEntry<'a, V, A: Allocator = Global> {
+    map: &'a mut VecMap<V, A>,
     index: usize,
 }
 
 /// An occupied Entry.
-pub struct OccupiedEntry<'a, V> {
-    map: &'a mut VecMap<V>,
+pub struct OccupiedEntry<'a, V, A: Allocator = Global> {
+    map: &'a mut VecMap<V, A>,
     index: usize,
 }
 
@@ -97,7 +107,7 @@ impl<V> Default for VecMap<V> {
     }
 }
 
-impl<V: Hash> Hash for VecMap<V> {
+impl<V: Hash, A: Allocator> Hash for VecMap<V, A> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         // In order to not traverse the `VecMap` twice, count the elements
         // during iteration.
@@ -120,7 +130,7 @@ impl<V> VecMap<V> {
     /// let mut map: VecMap<&str> = VecMap::new();
     /// ```
     pub fn new() -> Self {
-        VecMap { n: 0, v: vec![] }
+        VecMap::new_in(Default::default())
     }
 
     /// Creates an empty `VecMap` with space for at least `capacity`
@@ -133,9 +143,25 @@ impl<V> VecMap<V> {
     /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
     /// ```
     pub fn with_capacity(capacity: usize) -> Self {
+        VecMap::with_capacity_in(capacity, Default::default())
+    }
+}
+
+impl<V, A: Allocator> VecMap<V, A> {
+    /// Creates an empty `VecMap` with a custom allocator.
+    pub fn new_in(alloc: A) -> Self {
         VecMap {
             n: 0,
-            v: Vec::with_capacity(capacity),
+            v: Vec::new_in(alloc),
+        }
+    }
+
+    /// Creates an empty `VecMap` with space for at least `capacity`
+    /// elements before resizing, in a custom allocator.
+    pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {
+        VecMap {
+            n: 0,
+            v: Vec::with_capacity_in(capacity, alloc),
         }
     }
 
@@ -219,6 +245,11 @@ impl<V> VecMap<V> {
         }
 
         self.v.shrink_to_fit()
+    }
+
+    /// Returns a reference to the allocator for the `VecMap`.
+    pub fn allocator(&self) -> &A {
+        self.v.allocator()
     }
 
     /// Returns an iterator visiting all keys in ascending order of the keys.
@@ -355,8 +386,11 @@ impl<V> VecMap<V> {
     /// assert_eq!(b[3], "c");
     /// assert_eq!(b[4], "d");
     /// ```
-    pub fn split_off(&mut self, at: usize) -> Self {
-        let mut other = VecMap::new();
+    pub fn split_off(&mut self, at: usize) -> Self
+    where
+        A: Copy,
+    {
+        let mut other = VecMap::new_in(*self.allocator());
 
         if at == 0 {
             // Move all elements to other
@@ -414,7 +448,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    pub fn drain(&mut self) -> Drain<'_, V> {
+    pub fn drain(&mut self) -> Drain<'_, V, A> {
         fn filter<A>((i, v): (usize, Option<A>)) -> Option<(usize, A)> {
             v.map(|v| (i, v))
         }
@@ -603,7 +637,7 @@ impl<V> VecMap<V> {
     ///
     /// assert_eq!(count[1], 3);
     /// ```
-    pub fn entry(&mut self, key: usize) -> Entry<'_, V> {
+    pub fn entry(&mut self, key: usize) -> Entry<'_, V, A> {
         // FIXME(Gankro): this is basically the dumbest implementation of
         // entry possible, because weird non-lexical borrows issues make it
         // completely insane to do any other way. That said, Entry is a border-line
@@ -651,7 +685,7 @@ impl<V> VecMap<V> {
     }
 }
 
-impl<'a, V> Entry<'a, V> {
+impl<'a, V, A: Allocator> Entry<'a, V, A> {
     /// Ensures a value is in the entry by inserting the default if empty, and
     /// returns a mutable reference to the value in the entry.
     pub fn or_insert(self, default: V) -> &'a mut V {
@@ -672,7 +706,7 @@ impl<'a, V> Entry<'a, V> {
     }
 }
 
-impl<'a, V> VacantEntry<'a, V> {
+impl<'a, V, A: Allocator> VacantEntry<'a, V, A> {
     /// Sets the value of the entry with the VacantEntry's key,
     /// and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
@@ -682,7 +716,7 @@ impl<'a, V> VacantEntry<'a, V> {
     }
 }
 
-impl<'a, V> OccupiedEntry<'a, V> {
+impl<'a, V, A: Allocator> OccupiedEntry<'a, V, A> {
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
         let index = self.index;
@@ -715,7 +749,7 @@ impl<'a, V> OccupiedEntry<'a, V> {
     }
 }
 
-impl<V: Clone> Clone for VecMap<V> {
+impl<V: Clone, A: Allocator + Clone> Clone for VecMap<V, A> {
     #[inline]
     fn clone(&self) -> Self {
         VecMap {
@@ -731,29 +765,29 @@ impl<V: Clone> Clone for VecMap<V> {
     }
 }
 
-impl<V: PartialEq> PartialEq for VecMap<V> {
+impl<V: PartialEq, A: Allocator> PartialEq for VecMap<V, A> {
     fn eq(&self, other: &Self) -> bool {
         self.n == other.n && self.iter().eq(other.iter())
     }
 }
 
-impl<V: Eq> Eq for VecMap<V> {}
+impl<V: Eq, A: Allocator> Eq for VecMap<V, A> {}
 
-impl<V: PartialOrd> PartialOrd for VecMap<V> {
+impl<V: PartialOrd, A: Allocator> PartialOrd for VecMap<V, A> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.iter().partial_cmp(other.iter())
     }
 }
 
-impl<V: Ord> Ord for VecMap<V> {
+impl<V: Ord, A: Allocator> Ord for VecMap<V, A> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         self.iter().cmp(other.iter())
     }
 }
 
-impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
+impl<V: fmt::Debug, A: Allocator> fmt::Debug for VecMap<V, A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_map().entries(self).finish()
     }
@@ -767,9 +801,9 @@ impl<V> FromIterator<(usize, V)> for VecMap<V> {
     }
 }
 
-impl<T> IntoIterator for VecMap<T> {
+impl<T, A: Allocator> IntoIterator for VecMap<T, A> {
     type Item = (usize, T);
-    type IntoIter = IntoIter<T>;
+    type IntoIter = IntoIter<T, A>;
 
     /// Returns an iterator visiting all key-value pairs in ascending order of
     /// the keys, consuming the original `VecMap`.
@@ -789,7 +823,7 @@ impl<T> IntoIterator for VecMap<T> {
     ///
     /// assert_eq!(vec, [(1, "a"), (2, "b"), (3, "c")]);
     /// ```
-    fn into_iter(self) -> IntoIter<T> {
+    fn into_iter(self) -> IntoIter<T, A> {
         IntoIter {
             n: self.n,
             yielded: 0,
@@ -798,7 +832,7 @@ impl<T> IntoIterator for VecMap<T> {
     }
 }
 
-impl<'a, T> IntoIterator for &'a VecMap<T> {
+impl<'a, T, A: Allocator> IntoIterator for &'a VecMap<T, A> {
     type Item = (usize, &'a T);
     type IntoIter = Iter<'a, T>;
 
@@ -807,7 +841,7 @@ impl<'a, T> IntoIterator for &'a VecMap<T> {
     }
 }
 
-impl<'a, T> IntoIterator for &'a mut VecMap<T> {
+impl<'a, T, A: Allocator> IntoIterator for &'a mut VecMap<T, A> {
     type Item = (usize, &'a mut T);
     type IntoIter = IterMut<'a, T>;
 
@@ -816,7 +850,7 @@ impl<'a, T> IntoIterator for &'a mut VecMap<T> {
     }
 }
 
-impl<V> Extend<(usize, V)> for VecMap<V> {
+impl<V, A: Allocator> Extend<(usize, V)> for VecMap<V, A> {
     fn extend<I: IntoIterator<Item = (usize, V)>>(&mut self, iter: I) {
         for (k, v) in iter {
             self.insert(k, v);
@@ -824,13 +858,13 @@ impl<V> Extend<(usize, V)> for VecMap<V> {
     }
 }
 
-impl<'a, V: Copy> Extend<(usize, &'a V)> for VecMap<V> {
+impl<'a, V: Copy, A: Allocator> Extend<(usize, &'a V)> for VecMap<V, A> {
     fn extend<I: IntoIterator<Item = (usize, &'a V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().map(|(key, &value)| (key, value)));
     }
 }
 
-impl<V> Index<usize> for VecMap<V> {
+impl<V, A: Allocator> Index<usize> for VecMap<V, A> {
     type Output = V;
 
     #[inline]
@@ -839,7 +873,7 @@ impl<V> Index<usize> for VecMap<V> {
     }
 }
 
-impl<'a, V> Index<&'a usize> for VecMap<V> {
+impl<'a, V, A: Allocator> Index<&'a usize> for VecMap<V, A> {
     type Output = V;
 
     #[inline]
@@ -848,14 +882,14 @@ impl<'a, V> Index<&'a usize> for VecMap<V> {
     }
 }
 
-impl<V> IndexMut<usize> for VecMap<V> {
+impl<V, A: Allocator> IndexMut<usize> for VecMap<V, A> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut V {
         self.get_mut(i).expect("key not present")
     }
 }
 
-impl<'a, V> IndexMut<&'a usize> for VecMap<V> {
+impl<'a, V, A: Allocator> IndexMut<&'a usize> for VecMap<V, A> {
     #[inline]
     fn index_mut(&mut self, i: &usize) -> &mut V {
         self.get_mut(*i).expect("key not present")
@@ -985,21 +1019,21 @@ pub struct ValuesMut<'a, V> {
 }
 
 /// A consuming iterator over the key-value pairs of a map.
-pub struct IntoIter<V> {
+pub struct IntoIter<V, A: Allocator = Global> {
     n: usize,
     yielded: usize,
-    iter: Enumerate<vec::IntoIter<Option<V>>>,
+    iter: Enumerate<vec::IntoIter<Option<V>, A>>,
 }
 
 /// A draining iterator over the key-value pairs of a map.
-pub struct Drain<'a, V> {
+pub struct Drain<'a, V, A: Allocator = Global> {
     iter: FilterMap<
-        Enumerate<vec::Drain<'a, Option<V>>>,
+        Enumerate<vec::Drain<'a, Option<V>, A>>,
         fn((usize, Option<V>)) -> Option<(usize, V)>,
     >,
 }
 
-impl<'a, V> Iterator for Drain<'a, V> {
+impl<'a, V, A: Allocator> Iterator for Drain<'a, V, A> {
     type Item = (usize, V);
 
     fn next(&mut self) -> Option<(usize, V)> {
@@ -1010,9 +1044,9 @@ impl<'a, V> Iterator for Drain<'a, V> {
     }
 }
 
-impl<'a, V> ExactSizeIterator for Drain<'a, V> {}
+impl<'a, V, A: Allocator> ExactSizeIterator for Drain<'a, V, A> {}
 
-impl<'a, V> DoubleEndedIterator for Drain<'a, V> {
+impl<'a, V, A: Allocator> DoubleEndedIterator for Drain<'a, V, A> {
     fn next_back(&mut self) -> Option<(usize, V)> {
         self.iter.next_back()
     }
@@ -1075,7 +1109,7 @@ impl<'a, V> DoubleEndedIterator for ValuesMut<'a, V> {
     }
 }
 
-impl<V> Iterator for IntoIter<V> {
+impl<V, A: Allocator> Iterator for IntoIter<V, A> {
     type Item = (usize, V);
 
     fn next(&mut self) -> Option<(usize, V)> {
@@ -1096,9 +1130,9 @@ impl<V> Iterator for IntoIter<V> {
     }
 }
 
-impl<V> ExactSizeIterator for IntoIter<V> {}
+impl<V, A: Allocator> ExactSizeIterator for IntoIter<V, A> {}
 
-impl<V> DoubleEndedIterator for IntoIter<V> {
+impl<V, A: Allocator> DoubleEndedIterator for IntoIter<V, A> {
     fn next_back(&mut self) -> Option<(usize, V)> {
         loop {
             match self.iter.next_back() {
@@ -1112,11 +1146,13 @@ impl<V> DoubleEndedIterator for IntoIter<V> {
 
 #[allow(dead_code)]
 fn assert_properties() {
-    fn vec_map_covariant<'a, T>(map: VecMap<&'static T>) -> VecMap<&'a T> {
+    fn vec_map_covariant<'a, T, A: Allocator>(map: VecMap<&'static T, A>) -> VecMap<&'a T, A> {
         map
     }
 
-    fn into_iter_covariant<'a, T>(iter: IntoIter<&'static T>) -> IntoIter<&'a T> {
+    fn into_iter_covariant<'a, T, A: Allocator>(
+        iter: IntoIter<&'static T, A>,
+    ) -> IntoIter<&'a T, A> {
         iter
     }
 

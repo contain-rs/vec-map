@@ -39,8 +39,10 @@ readme = "README.md"
 exclude = ["/.travis.yml", "/deploy-docs.sh"]
 
 [features]
+serde = ["dep:serde", "allocator-api2/serde"]
 # This feature is kept for backwards compatibility. Use feature "serde" instead.
 eders = [ "serde" ]
 
 [dependencies]
+allocator-api2 = "0.2.20"
 serde = { version = "1.0", features = [ "derive" ], optional = true }
