@@ -71,20 +71,20 @@ pub struct VecMap<V> {
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
 pub enum Entry<'a, V> {
-    /// A vacant Entry
+    /// A vacant `Entry`
     Vacant(VacantEntry<'a, V>),
 
-    /// An occupied Entry
+    /// An occupied `Entry`
     Occupied(OccupiedEntry<'a, V>),
 }
 
-/// A vacant Entry.
+/// A vacant `Entry`.
 pub struct VacantEntry<'a, V> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
-/// An occupied Entry.
+/// An occupied `Entry`.
 pub struct OccupiedEntry<'a, V> {
     map: &'a mut VecMap<V>,
     index: usize,
@@ -676,7 +676,7 @@ impl<'a, V> Entry<'a, V> {
 }
 
 impl<'a, V> VacantEntry<'a, V> {
-    /// Sets the value of the entry with the VacantEntry's key,
+    /// Sets the value of the entry with the `VacantEntry`'s key,
     /// and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         let index = self.index;
@@ -704,7 +704,7 @@ impl<'a, V> OccupiedEntry<'a, V> {
         &mut self.map[index]
     }
 
-    /// Sets the value of the entry with the OccupiedEntry's key,
+    /// Sets the value of the entry with the `OccupiedEntry`'s key,
     /// and returns the entry's old value.
     pub fn insert(&mut self, value: V) -> V {
         let index = self.index;
