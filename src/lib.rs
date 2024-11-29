@@ -81,20 +81,20 @@ pub struct VecMap<V, A: Allocator = Global> {
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
 pub enum Entry<'a, V, A: Allocator = Global> {
-    /// A vacant Entry
+    /// A vacant `Entry`
     Vacant(VacantEntry<'a, V, A>),
 
-    /// An occupied Entry
+    /// An occupied `Entry`
     Occupied(OccupiedEntry<'a, V, A>),
 }
 
-/// A vacant Entry.
+/// A vacant `Entry`.
 pub struct VacantEntry<'a, V, A: Allocator = Global> {
     map: &'a mut VecMap<V, A>,
     index: usize,
 }
 
-/// An occupied Entry.
+/// An occupied `Entry`.
 pub struct OccupiedEntry<'a, V, A: Allocator = Global> {
     map: &'a mut VecMap<V, A>,
     index: usize,
@@ -571,6 +571,9 @@ impl<V, A: Allocator> VecMap<V, A> {
     /// Inserts a key-value pair into the map. If the key already had a value
     /// present in the map, that value is returned. Otherwise, `None` is returned.
     ///
+    /// *WARNING*: You should only use trusted values as keys in VecMap. Otherwise, a
+    /// denial-of-service vulnerability may occur that deplets memory with a large key value.
+    ///
     /// # Examples
     ///
     /// ```
@@ -707,7 +710,7 @@ impl<'a, V, A: Allocator> Entry<'a, V, A> {
 }
 
 impl<'a, V, A: Allocator> VacantEntry<'a, V, A> {
-    /// Sets the value of the entry with the VacantEntry's key,
+    /// Sets the value of the entry with the `VacantEntry`'s key,
     /// and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         let index = self.index;
@@ -735,7 +738,7 @@ impl<'a, V, A: Allocator> OccupiedEntry<'a, V, A> {
         &mut self.map[index]
     }
 
-    /// Sets the value of the entry with the OccupiedEntry's key,
+    /// Sets the value of the entry with the `OccupiedEntry`'s key,
     /// and returns the entry's old value.
     pub fn insert(&mut self, value: V) -> V {
         let index = self.index;
@@ -946,25 +949,13 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
+#[derive(Clone)]
 pub struct Iter<'a, V> {
     front: usize,
     back: usize,
     n: usize,
     yielded: usize,
     iter: slice::Iter<'a, Option<V>>,
-}
-
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Iter<'a, V> {
-    fn clone(&self) -> Iter<'a, V> {
-        Iter {
-            front: self.front,
-            back: self.back,
-            n: self.n,
-            yielded: self.yielded,
-            iter: self.iter.clone(),
-        }
-    }
 }
 
 iterator! { impl Iter -> (usize, &'a V), as_ref }
@@ -986,31 +977,15 @@ impl<'a, V> ExactSizeIterator for IterMut<'a, V> {}
 double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
+#[derive(Clone)]
 pub struct Keys<'a, V> {
     iter: Iter<'a, V>,
 }
 
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Keys<'a, V> {
-    fn clone(&self) -> Keys<'a, V> {
-        Keys {
-            iter: self.iter.clone(),
-        }
-    }
-}
-
 /// An iterator over the values of a map.
+#[derive(Clone)]
 pub struct Values<'a, V> {
     iter: Iter<'a, V>,
-}
-
-// FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-impl<'a, V> Clone for Values<'a, V> {
-    fn clone(&self) -> Values<'a, V> {
-        Values {
-            iter: self.iter.clone(),
-        }
-    }
 }
 
 /// An iterator over the values of a map.
