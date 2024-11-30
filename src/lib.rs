@@ -768,17 +768,31 @@ impl<V: Clone, A: Allocator + Clone> Clone for VecMap<V, A> {
     }
 }
 
-impl<V: PartialEq, A: Allocator> PartialEq for VecMap<V, A> {
-    fn eq(&self, other: &Self) -> bool {
-        self.n == other.n && self.iter().eq(other.iter())
+impl<V, W, A1, A2> PartialEq<VecMap<W, A2>> for VecMap<V, A1>
+where
+    V: PartialEq<W>,
+    A1: Allocator,
+    A2: Allocator,
+{
+    fn eq(&self, other: &VecMap<W, A2>) -> bool {
+        self.n == other.n
+            && self
+                .iter()
+                .zip(other.iter())
+                .all(|((i, x), (j, y))| i == j && x == y)
     }
 }
 
 impl<V: Eq, A: Allocator> Eq for VecMap<V, A> {}
 
-impl<V: PartialOrd, A: Allocator> PartialOrd for VecMap<V, A> {
+impl<V, A1, A2> PartialOrd<VecMap<V, A2>> for VecMap<V, A1>
+where
+    V: PartialOrd,
+    A1: Allocator,
+    A2: Allocator,
+{
     #[inline]
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &VecMap<V, A2>) -> Option<Ordering> {
         self.iter().partial_cmp(other.iter())
     }
 }
