@@ -36,6 +36,7 @@ homepage = "https://github.com/contain-rs/vec-map"
 documentation = "https://docs.rs/vec-map/latest/vec_map/"
 keywords = ["data-structures", "collections", "vecmap", "vec_map", "contain-rs"]
 readme = "README.md"
+rust-version = "1.60"
 
 [features]
 default = ["std"]
