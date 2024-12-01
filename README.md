@@ -8,7 +8,7 @@
 [![crates.io][crates.io shield]][crates.io link]
 [![Documentation][docs.rs badge]][docs.rs link]
 ![Rust CI][github ci badge]
-[![rustc 1.56+]][Rust 1.56]
+[![rustc 1.63+]][Rust 1.63]
 <br />
 <br />
 [![Dependency Status][deps.rs status]][deps.rs link]
@@ -22,9 +22,7 @@
 [docs.rs badge]: https://docs.rs/vec-map/badge.svg?version=0.8.2
 [docs.rs link]: https://docs.rs/vec-map/0.8.2/vec_map/
 [github ci badge]: https://github.com/contain-rs/vec-map/workflows/Rust/badge.svg?branch=master
-[rustc 1.56+]: https://img.shields.io/badge/rustc-1.56%2B-blue.svg
-[Rust 1.0]: https://blog.rust-lang.org/2015/05/15/Rust-1.0.html
-[Rust 1.31]: https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html
+[rustc 1.63+]: https://img.shields.io/badge/rustc-1.63%2B-blue.svg
 [deps.rs status]: https://deps.rs/crate/vec-map/0.8.2/status.svg
 [deps.rs link]: https://deps.rs/crate/vec-map/0.8.2
 [shields.io download count]: https://img.shields.io/crates/d/vec-map.svg
@@ -67,6 +65,11 @@ vec-map = { version = "0.8", default-features = false, features = ["serde", "ser
 ```
 
 <!-- cargo-rdme start -->
+
+### Description
+
+A simple map based on a vector for small integer keys. Space requirements
+are **O(highest integer key)**.
 
 <!-- cargo-rdme end -->
 
