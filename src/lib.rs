@@ -68,7 +68,7 @@ use std::slice;
 /// ```
 #[cfg_attr(
     feature = "serde",
-    derive(Serialize, Deserialize),
+    derive(serde::Serialize, serde::Deserialize),
     serde(bound(
         deserialize = "V: serde::Deserialize<'de>, A: Default",
         serialize = "V: serde::Serialize"
