@@ -1,4 +1,4 @@
-// Copyright 2012-2018 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2012-2024 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,17 +8,17 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![warn(rust_2018_idioms)]
 #![allow(clippy::type_complexity)]
 
+//! # Description
+//!
 //! A simple map based on a vector for small integer keys. Space requirements
-//! are O(highest integer key).
+//! are **O(highest integer key)**.
 
-// optional serde support
-#[cfg(feature = "serde")]
-#[macro_use]
-extern crate serde;
+mod macros;
 
 use self::Entry::*;
 
@@ -68,7 +68,7 @@ use std::slice;
 /// ```
 #[cfg_attr(
     feature = "serde",
-    derive(Serialize, Deserialize),
+    derive(serde::Serialize, serde::Deserialize),
     serde(bound(
         deserialize = "V: serde::Deserialize<'de>, A: Default",
         serialize = "V: serde::Serialize"
