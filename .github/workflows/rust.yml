@@ -18,8 +18,8 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Run tests (gecko-ffi)
-      run: cargo test --tests --verbose
+    - name: Run example
+      run: cargo run --example make_with_macro
       
   miri:
     name: "Miri"
@@ -43,8 +43,27 @@ jobs:
           toolchain: stable
           components: rustfmt
       - run: cargo fmt --all -- --check
-          
-          
+
+  msrv:
+    name: Rust ${{matrix.rust}}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [1.56.0, 1.57.0]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{matrix.rust}}
+      - run: cargo build
+      - run: cargo test
+      - run: cargo test --no-default-features
+      - run: cargo test --no-default-features --features serde_no_std
+      - run: cargo test --features serde
+      - run: cargo run --example make_with_macro
+
   clippy:
     runs-on: ubuntu-latest
     steps:
