@@ -48,5 +48,5 @@ serde = ["dep:serde", "allocator-api2/serde"]
 eders = [ "serde" ]
 
 [dependencies]
-allocator-api2 = { version = "0.2.20", default-features = false }
+allocator-api2 = { version = "0.2.20", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", features = ["derive"], optional = true }
